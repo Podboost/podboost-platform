@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PodBoost - AI Sponsorship Finder</title>
+    <link rel="icon" type="image/png" href="images/podboost-logo-new.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            '50': '#f0f9ff',
+                            '100': '#e0f2fe',
+                            '200': '#bae6fd',
+                            '300': '#7dd3fc',
+                            '400': '#38bdf8',
+                            '500': '#0ea5e9',
+                            '600': '#0284c7',
+                            '700': '#0369a1',
+                            '800': '#075985',
+                            '900': '#0c4a6e',
+                            '950': '#082f49',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .sponsor-card {
+            transition: all 0.3s ease;
+        }
+        .sponsor-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        }
+        .loading-spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #0ea5e9;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header/Navigation -->
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <img src="images/podboost-logo-new.png" alt="PodBoost Logo" class="h-12 mr-2">
+                        <div>
+                            <div class="text-xs text-purple-700">
+                                <a href="https://podshape.com/" target="_blank" class="hover:text-purple-900">A Podshape company</a>
+                            </div>
+                        </div>
+                    </div>
+                    <nav class="ml-6 flex space-x-8">
+                        <a href="/" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-primary-600">
+                            Home
+                        </a>
+                        <a href="/enhanced-podcast-analyzer.html" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-primary-600">
+                            Analytics
+                        </a>
+                        <a href="/rss-checker" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-primary-600">
+                            RSS Checker
+                        </a>
+                        <a href="/sponsorship-finder" class="inline-flex items-center px-1 pt-1 text-primary-600 border-b-2 border-primary-600">
+                            Sponsor Finder
+                        </a>
+                        <a href="/social-media-tracker.html" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-primary-600">
+                            Social Tracker
+                        </a>
+                        <a href="/campaigns.html" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-primary-600">
+                            Campaigns
+                        </a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="/premium-signup.html" class="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors">
+                        Upgrade to Premium
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <div class="mb-8">
+            <h1 class="text-3xl font-extrabold text-gray-900 mb-2">AI-Powered Sponsorship Finder</h1>
+            <p class="text-lg text-gray-700">Upload your podcast data to get personalized sponsor recommendations with verified contact information</p>
+        </div>
+
+        <!-- File Upload Section -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Upload Your Podcast Analytics</h2>
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <input type="file" id="file-input" accept=".csv" class="hidden">
+                <div id="upload-area" class="cursor-pointer">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <div class="mt-4">
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium text-primary-600 hover:text-primary-500">Click to upload</span>
+                            or drag and drop your CSV file here
+                        </p>
+                        <p class="text-xs text-gray-500">CSV files up to 10MB</p>
+                    </div>
+                </div>
+                <div id="file-info" class="hidden mt-4 p-3 bg-green-50 border border-green-200 rounded-md">
+                    <p class="text-sm text-green-800" id="file-name"></p>
+                </div>
+            </div>
+            <button id="analyze-btn" class="mt-4 w-full bg-primary-600 text-white py-2 px-4 rounded-lg hover:bg-primary-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors" disabled>
+                Find Sponsors with AI
+            </button>
+        </div>
+
+        <!-- Loading Section -->
+        <div id="loading-section" class="hidden bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="flex items-center justify-center">
+                <div class="loading-spinner mr-4"></div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">AI is analyzing your podcast data...</h3>
+                    <p class="text-gray-600">Finding perfect sponsor matches with contact information</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results-section" class="hidden">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Your Sponsor Recommendations</h2>
+                <p class="text-gray-600">AI-powered matches based on your podcast content and audience</p>
+            </div>
+            
+            <div id="sponsors-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Sponsor cards will be inserted here -->
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const uploadArea = document.getElementById('upload-area');
+        const fileInfo = document.getElementById('file-info');
+        const fileName = document.getElementById('file-name');
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const loadingSection = document.getElementById('loading-section');
+        const resultsSection = document.getElementById('results-section');
+        const sponsorsGrid = document.getElementById('sponsors-grid');
+
+        // File upload handling
+        uploadArea.addEventListener('click', () => fileInput.click());
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('border-primary-300', 'bg-primary-50');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('border-primary-300', 'bg-primary-50');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('border-primary-300', 'bg-primary-50');
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type === 'text/csv') {
+                handleFileSelect(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        function handleFileSelect(file) {
+            fileInfo.classList.remove('hidden');
+            fileName.textContent = `Selected: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+            analyzeBtn.disabled = false;
+        }
+
+        // Analyze button click
+        analyzeBtn.addEventListener('click', async () => {
+            if (!fileInput.files[0]) return;
+
+            loadingSection.classList.remove('hidden');
+            resultsSection.classList.add('hidden');
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await fetch('/.netlify/functions/sponsor-finder', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displaySponsors(data.sponsors || []);
+                
+            } catch (error) {
+                console.error('Error finding sponsors:', error);
+                alert('Error finding sponsors. Please try again.');
+            } finally {
+                loadingSection.classList.add('hidden');
+            }
+        });
+
+        function displaySponsors(sponsors) {
+            sponsorsGrid.innerHTML = '';
+            
+            sponsors.forEach(sponsor => {
+                const card = document.createElement('div');
+                card.className = 'sponsor-card bg-white rounded-lg shadow-md p-6 border border-gray-200';
+                
+                card.innerHTML = `
+                    <div class="flex items-start justify-between mb-4">
+                        <h3 class="text-lg font-semibold text-gray-900">${sponsor.company}</h3>
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                            ${sponsor.match_score}% Match
+                        </span>
+                    </div>
+                    
+                    <p class="text-gray-600 text-sm mb-4">${sponsor.description}</p>
+                    
+                    <div class="mb-4">
+                        <h4 class="text-sm font-medium text-gray-900 mb-2">Contact Information</h4>
+                        <div class="space-y-1">
+                            <p class="text-sm text-gray-600">
+                                <span class="font-medium">${sponsor.contact_name}</span> - ${sponsor.contact_title}
+                            </p>
+                            <p class="text-sm">
+                                <a href="mailto:${sponsor.contact_email}" class="text-primary-600 hover:text-primary-800">
+                                    ${sponsor.contact_email}
+                                </a>
+                            </p>
+                            ${sponsor.phone ? `<p class="text-sm text-gray-600">${sponsor.phone}</p>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Budget Range:</span> ${sponsor.budget || 'Contact for details'}
+                        </p>
+                        <p class="text-sm text-gray-600">
+                            <span class="font-medium">Category:</span> ${sponsor.category}
+                        </p>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <button onclick="copyEmail('${sponsor.contact_email}')" class="text-sm bg-primary-100 text-primary-700 px-3 py-1 rounded hover:bg-primary-200">
+                            Copy Email
+                        </button>
+                        ${sponsor.linkedin ? `<a href="${sponsor.linkedin}" target="_blank" class="text-sm text-blue-600 hover:text-blue-800">LinkedIn</a>` : ''}
+                    </div>
+                `;
+                
+                sponsorsGrid.appendChild(card);
+            });
+            
+            resultsSection.classList.remove('hidden');
+        }
+
+        function copyEmail(email) {
+            navigator.clipboard.writeText(email).then(() => {
+                // Show brief success message
+                const btn = event.target;
+                const originalText = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.classList.add('bg-green-100', 'text-green-700');
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.classList.remove('bg-green-100', 'text-green-700');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
