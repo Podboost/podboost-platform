@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaign Manager - PodBoost</title>
+    <link rel="icon" type="image/png" href="images/podboost-logo-new.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="auth-check.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0A0E1A 0%, #1a1e2e 100%);
+            min-height: 100vh;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(79, 150, 255, 0.2);
+        }
+        .podboost-glow {
+            text-shadow: 0 0 10px rgba(30, 144, 255, 0.7);
+        }
+        .logo-glow {
+            filter: drop-shadow(0 0 10px rgba(30, 144, 255, 0.7));
+        }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Navigation -->
+    <div id="navbar-container"></div>
+    
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
+        <!-- Header -->
+        <div class="text-center mb-8 sm:mb-12">
+            <img src="images/podboost-logo-new.png" alt="PodBoost Logo" class="h-12 sm:h-16 mx-auto mb-3 sm:mb-4 logo-glow">
+            <h1 class="text-2xl sm:text-4xl font-bold mb-3 sm:mb-4 text-[#1e90ff] podboost-glow">Campaign Manager</h1>
+            <p class="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto px-4">Create, manage and track your podcast marketing campaigns with advanced analytics</p>
+        </div>
+
+        <!-- Campaign Manager Interface -->
+        <div class="bg-gray-800/50 border border-[#1e90ff]/30 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
+                <h3 class="text-lg sm:text-xl font-semibold text-[#1e90ff]">Campaign Manager Interface</h3>
+                <button onclick="openCampaignManager()" class="bg-[#1e90ff] hover:bg-[#36b4ff] text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+                    Open in New Tab
+                </button>
+            </div>
+            
+            <div id="campaign-status" class="mb-4 p-4 bg-gray-700/50 rounded-lg">
+                <p class="text-gray-300">Loading Campaign Manager interface...</p>
+            </div>
+            
+            <!-- Direct Campaign Creation Form -->
+            <div class="bg-gray-700/50 rounded-lg p-6">
+                <h4 class="text-lg font-semibold mb-4 text-[#1e90ff]">Quick Campaign Creation</h4>
+                <form id="quick-campaign-form" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Campaign Name</label>
+                            <input type="text" id="campaign-name" class="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white" placeholder="My Podcast Campaign">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Podcast Name</label>
+                            <input type="text" id="podcast-name" class="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white" placeholder="Your Podcast Name">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">RSS Feed URL</label>
+                        <input type="url" id="rss-feed" class="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white" placeholder="https://feeds.example.com/podcast">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Target Audience</label>
+                        <input type="text" id="target-audience" class="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white" placeholder="Business professionals, tech enthusiasts, etc.">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-300 mb-2">Budget (AUD)</label>
+                        <input type="number" id="budget" class="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white" placeholder="1000">
+                    </div>
+                    <button type="submit" class="w-full bg-[#1e90ff] hover:bg-[#36b4ff] text-white py-3 rounded-lg font-semibold transition-colors">
+                        Create Campaign
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Campaign Features Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-gray-800/50 border border-[#1e90ff]/30 rounded-lg p-6 card-hover">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-[#1e90ff] rounded-lg flex items-center justify-center mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-[#1e90ff]">Campaign Creation</h3>
+                </div>
+                <p class="text-gray-300">Set up targeted marketing campaigns with custom audience targeting and budget allocation</p>
+            </div>
+
+            <div class="bg-gray-800/50 border border-[#1e90ff]/30 rounded-lg p-6 card-hover">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-[#1e90ff] rounded-lg flex items-center justify-center mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-[#1e90ff]">Performance Tracking</h3>
+                </div>
+                <p class="text-gray-300">Monitor campaign performance with real-time analytics and engagement metrics</p>
+            </div>
+
+            <div class="bg-gray-800/50 border border-[#1e90ff]/30 rounded-lg p-6 card-hover">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-[#1e90ff] rounded-lg flex items-center justify-center mr-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-[#1e90ff]">Campaign Optimization</h3>
+                </div>
+                <p class="text-gray-300">Get AI-powered suggestions to improve campaign performance and ROI</p>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="bg-gray-800/50 border border-[#1e90ff]/30 rounded-lg p-6">
+            <h2 class="text-2xl font-semibold mb-6 text-[#1e90ff]">Quick Actions</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button onclick="openCampaignManager()" 
+                        class="bg-[#1e90ff] hover:bg-[#36b4ff] text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                    🚀 Open Full Campaign Manager
+                </button>
+                <button onclick="createNewCampaign()" 
+                        class="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold transition-colors">
+                    ➕ Create New Campaign
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Navigation -->
+    <script>
+        // Load navbar
+        fetch('/navbar.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('navbar-container').innerHTML = html;
+            })
+            .catch(error => console.error('Error loading navbar:', error));
+
+        function createNewCampaign() {
+            // Open the campaign manager in a new tab focused on creation
+            openCampaignManager();
+        }
+
+        function openCampaignManager() {
+            // Get the current hostname and use port 8001 for campaign manager
+            const baseUrl = window.location.protocol + '//' + window.location.hostname;
+            let campaignUrl;
+            
+            if (window.location.hostname.includes('replit')) {
+                // Replit environment - use the webview port
+                campaignUrl = `${baseUrl}:8001`;
+            } else {
+                // Local development
+                campaignUrl = `${baseUrl}:8001`;
+            }
+            
+            window.open(campaignUrl, '_blank');
+        }
+
+        // Check Campaign Manager status
+        async function checkCampaignStatus() {
+            const statusDiv = document.getElementById('campaign-status');
+            const baseUrl = window.location.protocol + '//' + window.location.hostname;
+            const campaignUrl = `${baseUrl}:8001`;
+            
+            try {
+                const response = await fetch(campaignUrl);
+                if (response.ok) {
+                    statusDiv.innerHTML = `
+                        <p class="text-green-400">✓ Campaign Manager is running successfully</p>
+                        <p class="text-gray-300 text-sm">Service available at: ${campaignUrl}</p>
+                    `;
+                } else {
+                    throw new Error('Service not responding');
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <p class="text-red-400">⚠ Campaign Manager connection failed</p>
+                    <p class="text-gray-300 text-sm">Use the form below to create campaigns directly</p>
+                `;
+            }
+        }
+
+        // Handle campaign form submission
+        document.getElementById('quick-campaign-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('campaign-name').value,
+                podcast_name: document.getElementById('podcast-name').value,
+                rss_feed: document.getElementById('rss-feed').value,
+                target_audience: document.getElementById('target-audience').value,
+                budget: document.getElementById('budget').value
+            };
+            
+            if (!formData.name || !formData.podcast_name) {
+                alert('Please fill in campaign name and podcast name');
+                return;
+            }
+            
+            try {
+                const baseUrl = window.location.protocol + '//' + window.location.hostname;
+                const response = await fetch(`${baseUrl}:8001/create_campaign`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(formData)
+                });
+                
+                if (response.ok) {
+                    alert('Campaign created successfully!');
+                    document.getElementById('quick-campaign-form').reset();
+                    checkCampaignStatus();
+                } else {
+                    throw new Error('Failed to create campaign');
+                }
+            } catch (error) {
+                alert('Error creating campaign. Please try using the external Campaign Manager.');
+            }
+        });
+
+        // Initialize status check when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            checkCampaignStatus();
+        });
+    </script>
+</body>
+</html>
