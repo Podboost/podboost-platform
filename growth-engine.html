@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PodBoost - Growth Engine</title>
+    <link rel="icon" type="image/png" href="images/podboost-logo-new.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'podboost-blue': '#4F96FF',
+                        'podboost-highlight': '#3B7DD8',
+                        'premium-gold': '#FFD700',
+                        'deep-navy': '#0A0E1A'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0A0E1A 0%, #1a1e2e 100%);
+            min-height: 100vh;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(79, 150, 255, 0.2);
+        }
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        .progress-ring-circle {
+            stroke-dasharray: 251.2;
+            stroke-dashoffset: 251.2;
+            transition: stroke-dashoffset 0.5s ease-in-out;
+        }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Navigation Bar -->
+    <div id="navbar-container"></div>
+    
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
+        <!-- Hero Section -->
+        <div class="text-center mb-12">
+            <div class="mb-6">
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-podboost-blue to-podboost-highlight rounded-full mb-4">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+                    </svg>
+                </div>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-podboost-blue to-premium-gold bg-clip-text text-transparent">
+                Growth Engine
+            </h1>
+            <p class="text-xl text-gray-300 max-w-3xl mx-auto">
+                Analyze your RSS feed and get actionable insights to grow your podcast audience with AI-powered recommendations.
+            </p>
+        </div>
+
+        <!-- RSS Feed Input Section -->
+        <div class="bg-gray-800/50 backdrop-blur-sm border border-podboost-blue/20 rounded-xl p-8 mb-8 card-hover">
+            <div class="text-center mb-6">
+                <h2 class="text-2xl font-bold text-podboost-blue mb-2">Analyze Your Podcast Feed</h2>
+                <p class="text-gray-300">Enter your RSS feed URL to get comprehensive growth insights</p>
+            </div>
+            
+            <div class="max-w-2xl mx-auto">
+                <div class="relative">
+                    <input 
+                        type="url" 
+                        id="rssUrl" 
+                        placeholder="https://anchor.fm/s/12345678/podcast/rss" 
+                        class="w-full px-4 py-4 bg-gray-700/50 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:border-podboost-blue focus:ring-2 focus:ring-podboost-blue/20 focus:outline-none pr-32"
+                    >
+                    <button 
+                        onclick="analyzeRSS()" 
+                        class="absolute right-2 top-2 bottom-2 px-6 bg-gradient-to-r from-podboost-blue to-podboost-highlight text-white rounded-md font-semibold hover:shadow-lg hover:shadow-podboost-blue/25 transition-all"
+                    >
+                        Analyze
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Results -->
+        <div id="analysisResults" class="hidden">
+            <!-- Overall Score -->
+            <div class="bg-gray-800/50 backdrop-blur-sm border border-podboost-blue/20 rounded-xl p-8 mb-8 text-center card-hover">
+                <h3 class="text-2xl font-bold text-podboost-blue mb-4">Overall Growth Score</h3>
+                <div class="relative inline-flex items-center justify-center">
+                    <svg class="progress-ring w-32 h-32">
+                        <circle 
+                            class="progress-ring-circle stroke-current text-podboost-blue" 
+                            stroke-width="8" 
+                            fill="transparent" 
+                            r="40" 
+                            cx="64" 
+                            cy="64"
+                            id="progressCircle"
+                        />
+                    </svg>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <span id="scoreDisplay" class="text-4xl font-bold text-white">0</span>
+                    </div>
+                </div>
+                <p class="text-gray-300 mt-4">out of 100</p>
+            </div>
+
+            <!-- Detailed Analysis -->
+            <div class="grid md:grid-cols-2 gap-8 mb-8">
+                <!-- RSS Feed Quality -->
+                <div class="bg-gray-800/50 backdrop-blur-sm border border-podboost-blue/20 rounded-xl p-6 card-hover">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-podboost-blue/20 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-podboost-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">Feed Quality</h3>
+                    </div>
+                    <div id="feedQuality" class="space-y-3">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+
+                <!-- SEO Optimization -->
+                <div class="bg-gray-800/50 backdrop-blur-sm border border-podboost-blue/20 rounded-xl p-6 card-hover">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 bg-premium-gold/20 rounded-lg flex items-center justify-center mr-4">
+                            <svg class="w-6 h-6 text-premium-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-white">SEO Score</h3>
+                    </div>
+                    <div id="seoOptimization" class="space-y-3">
+                        <!-- Results will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Growth Recommendations -->
+            <div class="bg-gray-800/50 backdrop-blur-sm border border-podboost-blue/20 rounded-xl p-8 card-hover">
+                <div class="flex items-center mb-6">
+                    <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mr-4">
+                        <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white">Growth Recommendations</h3>
+                </div>
+                <div id="growthRecommendations" class="grid md:grid-cols-2 gap-6">
+                    <!-- Recommendations will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="hidden text-center py-12">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-podboost-blue/20 rounded-full mb-4 animate-pulse">
+                <svg class="w-8 h-8 text-podboost-blue animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2">Analyzing Your Podcast</h3>
+            <p class="text-gray-300">This may take a few moments...</p>
+        </div>
+    </div>
+
+    <script>
+        // Load the navbar
+        fetch('/navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar-container').innerHTML = data;
+            })
+            .catch(error => console.error('Error loading navbar:', error));
+
+        async function analyzeRSS() {
+            const url = document.getElementById('rssUrl').value.trim();
+            
+            if (!url) {
+                alert('Please enter an RSS feed URL');
+                return;
+            }
+
+            // Show loading state
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('analysisResults').classList.add('hidden');
+
+            try {
+                const response = await fetch('/api/rss-analysis', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ rssUrl: url })
+                });
+
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                displayResults(data);
+            } catch (error) {
+                console.error('RSS Analysis Error:', error);
+                alert('Error analyzing RSS feed: ' + error.message);
+            } finally {
+                document.getElementById('loadingState').classList.add('hidden');
+            }
+        }
+
+        function displayResults(data) {
+            // Update score display
+            const score = data.overall_score || 0;
+            document.getElementById('scoreDisplay').textContent = score;
+            
+            // Update progress circle
+            const circle = document.getElementById('progressCircle');
+            const circumference = 2 * Math.PI * 40;
+            const offset = circumference - (score / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+
+            // Populate feed quality
+            const feedQuality = document.getElementById('feedQuality');
+            feedQuality.innerHTML = data.feed_quality.map(item => `
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-300">${item.check}</span>
+                    <span class="text-${item.status === 'pass' ? 'green' : 'red'}-400 font-semibold">
+                        ${item.status === 'pass' ? '✓' : '✗'}
+                    </span>
+                </div>
+            `).join('');
+
+            // Populate SEO optimization
+            const seoOptimization = document.getElementById('seoOptimization');
+            seoOptimization.innerHTML = data.seo_score.map(item => `
+                <div class="flex items-center justify-between">
+                    <span class="text-gray-300">${item.check}</span>
+                    <span class="text-${item.status === 'pass' ? 'green' : 'yellow'}-400 font-semibold">
+                        ${item.score}/10
+                    </span>
+                </div>
+            `).join('');
+
+            // Populate growth recommendations
+            const recommendations = document.getElementById('growthRecommendations');
+            recommendations.innerHTML = data.recommendations.map(rec => `
+                <div class="bg-gray-700/50 rounded-lg p-4">
+                    <div class="flex items-center mb-2">
+                        <span class="text-${rec.priority === 'high' ? 'red' : rec.priority === 'medium' ? 'yellow' : 'green'}-400 font-semibold text-sm">
+                            ${rec.priority.toUpperCase()} PRIORITY
+                        </span>
+                    </div>
+                    <h4 class="text-white font-semibold mb-2">${rec.title}</h4>
+                    <p class="text-gray-300 text-sm">${rec.description}</p>
+                </div>
+            `).join('');
+
+            // Show results
+            document.getElementById('analysisResults').classList.remove('hidden');
+        }
+
+        // Handle Enter key in input
+        document.getElementById('rssUrl').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                analyzeRSS();
+            }
+        });
+    </script>
+</body>
+</html>
