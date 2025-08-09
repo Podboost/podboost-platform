@@ -1,0 +1,18 @@
+{
+  "name": "podboost",
+  "version": "1.0.0",
+  "description": "PodBoost - Podcast Growth Platform",
+  "main": "index.html",
+  "scripts": {
+    "build": "echo 'Static build complete'"
+  },
+  "dependencies": {
+    "feedparser": "^2.2.10",
+    "openai": "^4.0.0",
+    "axios": "^1.4.0"
+  },
+  "devDependencies": {},
+  "keywords": ["podcast", "analytics", "growth"],
+  "author": "PodBoost",
+  "license": "MIT"
+}
