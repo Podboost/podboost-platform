@@ -146,9 +146,9 @@
                         Campaign Manager Access
                     </li>
                 </ul>
-                <a href="/premium-signup-form.html" class="block w-full py-3 px-6 btn-premium rounded-lg text-center">
-                    Upgrade to Premium
-                </a>
+                <button onclick="upgradeToPremium()" class="block w-full py-3 px-6 btn-premium rounded-lg text-center">
+                    Upgrade to Premium - $7/month
+                </button>
             </div>
         </div>
 
@@ -167,6 +167,9 @@
 
     <script src="https://js.stripe.com/v3/"></script>
     <script>
+        // Initialize Stripe with your publishable key
+        const stripe = Stripe('pk_live_51L3Vg1AG75e8uzLKUpKJtNuxwVLscGlrmZmbrSoV3xPJeZX5OyBsi4twFlxgMLTjfHscUG8SDDPx322RPw0k4oKH00yKhzhp61');
+
         // Load the navbar
         fetch('/navbar.html')
             .then(response => response.text())
@@ -180,11 +183,45 @@
         const feature = urlParams.get('feature');
         
         if (feature === 'social-impact') {
-            // Feature is already highlighted by default
             console.log('Showing Social Impact upgrade page');
         }
 
-        // Removed old upgrade function - now redirects to signup form
+        // Stripe Checkout Integration
+        async function upgradeToPremium() {
+            try {
+                // Create checkout session
+                const response = await fetch('/api/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        priceId: 'price_premium_monthly', // Your Stripe price ID
+                        successUrl: window.location.origin + '/premium-success?session_id={CHECKOUT_SESSION_ID}',
+                        cancelUrl: window.location.origin + '/premium-signup?cancelled=true'
+                    })
+                });
+
+                const session = await response.json();
+                
+                if (session.error) {
+                    alert('Payment setup error: ' + session.error);
+                    return;
+                }
+
+                // Redirect to Stripe Checkout
+                const result = await stripe.redirectToCheckout({
+                    sessionId: session.id
+                });
+
+                if (result.error) {
+                    alert('Payment error: ' + result.error.message);
+                }
+            } catch (error) {
+                console.error('Checkout error:', error);
+                alert('Unable to start checkout. Please try again.');
+            }
+        }
 
         function startFreeTrial() {
             // Grant 7-day trial access
