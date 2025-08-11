@@ -44,15 +44,22 @@ exports.handler = async (event, context) => {
 
                     IMPORTANT: Generate sponsors that match the podcast's specific content. For example:
                     - Tech podcasts: Software companies, tech startups, developer tools
-                    - Health podcasts: Fitness brands, supplements, wellness apps
-                    - Business podcasts: Business services, productivity tools, financial services
-                    - Comedy podcasts: Entertainment brands, lifestyle products
-                    - True crime podcasts: Security services, legal services, documentary platforms
-
-                    Include a mix of:
-                    - 40% companies directly relevant to the podcast topic
-                    - 30% Australian companies (Afterpay, Canva, etc.) that fit the audience
-                    - 30% global brands that match the podcast's demographic
+                    Analyze the ACTUAL podcast content and themes provided to find sponsors that match:
+                    
+                    Based on content themes: ${podcastData.content_themes || 'Not provided'}
+                    Primary topics discussed: ${podcastData.primary_topics || 'Not provided'}
+                    Episode examples: ${podcastData.top_episodes?.map(ep => ep.title).slice(0,3).join(', ') || 'Not provided'}
+                    Geographic focus: ${podcastData.geographic_focus || 'Global'}
+                    Average downloads: ${podcastData.average_downloads || 'Not provided'}
+                    
+                    Find sponsors specifically relevant to these actual content themes:
+                    - Tech content: Software companies, SaaS tools, development platforms
+                    - Health content: Fitness apps, nutrition brands, wellness services
+                    - Business content: Business tools, financial services, productivity apps
+                    - Lifestyle content: Consumer brands, subscription boxes, lifestyle services
+                    - Entertainment: Streaming platforms, gaming companies, media services
+                    
+                    Make recommendations highly specific to the analyzed content, not generic Australian companies.
 
                     Return ONLY valid JSON in this exact format:
                     {
@@ -73,8 +80,21 @@ exports.handler = async (event, context) => {
                     }`
                 },
                 {
-                    role: "user",
-                    content: `Analyze this podcast data and find 12 highly relevant sponsors based on the content, topics, and audience demographics. Podcast data: ${podcastData}`
+                    role: "user", 
+                    content: `Analyze this REAL podcast data and find 12 highly personalized sponsors based on actual content themes and topics:
+                    
+                    ${JSON.stringify(podcastData)}
+
+Podcast Data: ${podcastData}
+
+Requirements:
+1. Use the actual content themes and topics provided
+2. Match sponsors to specific episode content and discussions
+3. Consider the geographic market and audience demographics
+4. Provide sponsors that align with the podcast's actual subject matter
+5. Explain WHY each sponsor matches based on the content analysis
+
+Generate sponsors that would genuinely want to advertise on this specific podcast based on its content.`
                 }
             ],
             max_tokens: 3000,
