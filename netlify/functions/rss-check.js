@@ -82,6 +82,11 @@ function fetchRSSFeed(feedUrl) {
         const protocol = feedUrl.startsWith('https') ? https : http;
         
         const request = protocol.get(feedUrl, (response) => {
+            // Handle redirects
+            if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
+                return fetchRSSFeed(response.headers.location).then(resolve).catch(reject);
+            }
+            
             if (response.statusCode !== 200) {
                 reject(new Error(`Failed to fetch RSS feed: HTTP ${response.statusCode}`));
                 return;
