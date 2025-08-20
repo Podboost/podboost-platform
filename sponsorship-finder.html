@@ -218,29 +218,20 @@
             }, 800);
 
             try {
-                // Analyze content
-                const analysisResponse = await fetch('/api/content/analyze-csv', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        csv_data: uploadedData,
-                        category: category,
-                        geographic_focus: geographic_focus
-                    })
-                });
-
-                const analysis = await analysisResponse.json();
+                // Estimate monthly downloads from CSV data
+                const lines = uploadedData.split('\n');
+                const dataRows = lines.slice(1).filter(line => line.trim());
+                const estimatedDownloads = Math.max(1000, dataRows.length * 100); // Basic estimation
                 
-                // Find sponsors
+                // Find sponsors directly
                 const sponsorResponse = await fetch('/.netlify/functions/sponsor-finder', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         podcast_name: podcastName,
                         category: category,
-                        monthly_downloads: analysis.average_downloads || 1000,
-                        geographic_focus: geographic_focus,
-                        analyzed_content: analysis
+                        monthly_downloads: estimatedDownloads,
+                        geographic_focus: geographic_focus
                     })
                 });
 
