@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PodBoost - Podcast Analytics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --podboost-blue: #1e90ff;
+            --podboost-dark: #1a1e2e;
+            --podboost-highlight: #36b4ff;
+        }
+        body {
+            background-color: var(--podboost-dark);
+            color: #fff;
+        }
+        .loader {
+            border: 4px solid #2a3249;
+            border-top: 4px solid var(--podboost-blue);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 2s linear infinite;
+            display: none;
+            margin: 10px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .chart-container {
+            width: 100%;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        .podboost-glow {
+            text-shadow: 0 0 10px rgba(30, 144, 255, 0.7);
+        }
+        .logo-glow {
+            filter: drop-shadow(0 0 10px rgba(30, 144, 255, 0.7));
+        }
+        canvas {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'podboost-blue': '#1e90ff',
+                        'podboost-dark': '#1a1e2e',
+                        'podboost-highlight': '#36b4ff'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-900 text-gray-100">
+    <div class="max-w-6xl mx-auto p-4">
+        <div class="flex items-center justify-center mb-8 mt-4">
+            <img src="/images/podboost-logo-new.png" alt="PodBoost Logo" class="h-16 logo-glow">
+        </div>
+        <header class="bg-gray-800/50 border border-podboost-blue/30 text-white p-6 rounded-t-lg shadow-md">
+            <h1 class="text-3xl font-bold mb-2 text-podboost-blue podboost-glow">Podcast Analytics Tool</h1>
+            <p class="text-blue-300">Upload your podcast CSV data to discover performance insights</p>
+        </header>
+
+        <div class="bg-white p-6 rounded-b-lg shadow-md mb-6">
+            <div class="mb-6">
+                <h2 class="text-xl font-semibold mb-3">Upload Your Podcast Data</h2>
+                <p class="text-gray-600 mb-4">Upload a CSV file containing your podcast episode data with download statistics</p>
+                
+                <div class="flex items-center space-x-4">
+                    <label class="block">
+                        <span class="sr-only">Choose CSV file</span>
+                        <input type="file" id="fileInput" accept=".csv" 
+                            class="block w-full text-gray-500
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-md file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-purple-50 file:text-purple-700
+                            hover:file:bg-purple-100
+                            "/>
+                    </label>
+                    <button id="analyzeButton"
+                        class="py-2 px-4 bg-purple-800 text-white font-semibold rounded-md shadow-sm hover:bg-purple-700">
+                        Analyze Data
+                    </button>
+                </div>
+                <div id="loader" class="loader mt-4"></div>
+                <div id="status" class="text-gray-600 italic text-sm mt-2"></div>
+            </div>
+        </div>
+
+        <div id="results" class="space-y-6 hidden">
+            <!-- Results will be inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const fileInput = document.getElementById('fileInput');
+        const analyzeButton = document.getElementById('analyzeButton');
+        const loader = document.getElementById('loader');
+        const results = document.getElementById('results');
+        const status = document.getElementById('status');
+        
+        // Charts
+        let episodeChart = null;
+        let monthlyChart = null;
+        
+        // Main function to analyze the CSV file
+        analyzeButton.addEventListener('click', function() {
+            if (!fileInput.files.length) {
+                alert('Please select a CSV file first');
+                return;
+            }
+            
+            // Reset UI
+            loader.style.display = 'block';
+            results.innerHTML = '';
+            results.classList.add('hidden');
+            status.textContent = 'Reading file...';
+            
+            const file = fileInput.files[0];
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const content = e.target.result;
+                status.textContent = 'Parsing CSV data...';
+                
+                try {
+                    // Parse CSV
+                    const data = parseCSV(content);
+                    
+                    if (data.length === 0) {
+                        status.textContent = 'No valid data found in CSV file';
+                        loader.style.display = 'none';
+                        return;
+                    }
+                    
+                    status.textContent = 'Analyzing podcast data...';
+                    
+                    // Analyze and display data
+                    analyzeData(data);
+                    
+                    // Hide loading
+                    loader.style.display = 'none';
+                    status.textContent = '';
+                    
+                    // Show results
+                    results.classList.remove('hidden');
+                } catch (error) {
+                    console.error('Error processing file:', error);
+                    status.textContent = 'Error: ' + error.message;
+                    loader.style.display = 'none';
+                }
+            };
+            
+            reader.onerror = function() {
+                status.textContent = 'Error reading file';
+                loader.style.display = 'none';
+            };
+            
+            reader.readAsText(file);
+        });
+        
+        function parseCSV(content) {
+            // Log raw data
+            console.log('CSV sample (first 300 chars):', content.substring(0, 300));
+            
+            // Split into lines
+            let lines = content.split('\n');
+            if (lines.length <= 1) {
+                lines = content.split('\r\n');
+                if (lines.length <= 1) {
+                    lines = content.split('\r');
+                }
+            }
+            
+            if (lines.length <= 1) {
+                throw new Error('Could not parse CSV data');
+            }
+            
+            // Parse headers
+            const headers = lines[0].split(',').map(h => h.trim());
+            console.log('Headers:', headers);
+            
+            // Parse rows
+            const rows = [];
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                
+                const values = parseCSVLine(lines[i]);
+                
+                if (values.length < headers.length) {
+                    console.log(`Skipping row ${i+1}, not enough columns`);
+                    continue;
+                }
+                
+                const row = {};
+                
+                for (let j = 0; j < headers.length; j++) {
+                    let value = values[j];
+                    row[headers[j]] = value;
+                    
+                    // Handle numeric values
+                    if (value && value.toString().match(/[0-9]/)) {
+                        let cleanValue = value.toString().replace(/[^0-9.]/g, '');
+                        row[headers[j] + '_numeric'] = parseFloat(cleanValue) || 0;
+                    }
+                }
+                
+                rows.push(row);
+            }
+            
+            console.log(`Parsed ${rows.length} data rows`);
+            if (rows.length > 0) {
+                console.log('Sample row:', rows[0]);
+            }
+            
+            return rows;
+        }
+        
+        // Helper function to parse CSV line respecting quotes
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                
+                if (char === '"' && (i === 0 || line[i-1] !== '\\')) {
+                    inQuotes = !inQuotes;
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current.trim());
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            
+            if (current !== '') {
+                result.push(current.trim());
+            }
+            
+            return result;
+        }
+        
+        function analyzeData(data) {
+            // Find important columns
+            const headers = Object.keys(data[0]);
+            const titleColumn = findColumn(headers, ['title', 'episode', 'name', 'clip title']);
+            const dateColumn = findColumn(headers, ['date', 'published', 'release', 'published date']);
+            const downloadColumn = findColumn(headers, ['download', 'downloads', 'plays', 'listens', 'streams']);
+            
+            console.log('Column mapping:', { title: titleColumn, date: dateColumn, downloads: downloadColumn });
+            
+            // Data summary
+            let summaryHTML = `
+                <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                    <h2 class="text-xl font-semibold mb-3">Data Summary</h2>
+                    <p class="text-gray-600">Analyzed ${data.length} episodes from your podcast</p>
+                    <div class="mt-2 text-gray-600">
+                        Using: 
+                        ${titleColumn ? '<span class="text-purple-700 font-medium">'+titleColumn+'</span> for title, ' : ''}
+                        ${dateColumn ? '<span class="text-purple-700 font-medium">'+dateColumn+'</span> for date, ' : ''}
+                        ${downloadColumn ? '<span class="text-purple-700 font-medium">'+downloadColumn+'</span> for downloads' : ''}
+                    </div>
+                </div>
+            `;
+            
+            // Calculate stats
+            if (downloadColumn) {
+                const numericColumn = downloadColumn + '_numeric';
+                const downloadValues = data.map(row => row[numericColumn] || 0);
+                
+                // Find the maximum download for debugging
+                const maxDownload = Math.max(...downloadValues);
+                console.log('Maximum download value:', maxDownload);
+                
+                const totalDownloads = downloadValues.reduce((a, b) => a + b, 0);
+                const avgDownloads = totalDownloads / data.length;
+                
+                // Performance overview
+                summaryHTML += `
+                    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                        <h2 class="text-xl font-semibold mb-4">Performance Overview</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-purple-50 p-4 rounded-lg text-center">
+                                <p class="text-gray-600 text-sm">Total Episodes</p>
+                                <p class="text-3xl font-bold text-purple-900">${data.length}</p>
+                            </div>
+                            <div class="bg-purple-50 p-4 rounded-lg text-center">
+                                <p class="text-gray-600 text-sm">Total Downloads</p>
+                                <p class="text-3xl font-bold text-purple-900">${Math.round(totalDownloads).toLocaleString()}</p>
+                            </div>
+                            <div class="bg-purple-50 p-4 rounded-lg text-center">
+                                <p class="text-gray-600 text-sm">Average Downloads</p>
+                                <p class="text-3xl font-bold text-purple-900">${Math.round(avgDownloads).toLocaleString()}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-6">
+                            <p class="text-gray-600 mb-2">Download Distribution:</p>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-purple-600 h-2.5 rounded-full" style="width: 100%"></div>
+                            </div>
+                            <div class="flex justify-between text-xs text-gray-500 mt-1">
+                                <span>Min: ${Math.min(...downloadValues).toLocaleString()}</span>
+                                <span>Max: ${maxDownload.toLocaleString()}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Top Episodes - sorted by numeric download values
+                const topEpisodes = [...data]
+                    .sort((a, b) => (b[numericColumn] || 0) - (a[numericColumn] || 0))
+                    .slice(0, 10); 
+                
+                summaryHTML += `
+                    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                        <h2 class="text-xl font-semibold mb-4">Top Performing Episodes</h2>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rank</th>
+                                        ${titleColumn ? `<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>` : ''}
+                                        ${dateColumn ? `<th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>` : ''}
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Downloads</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                `;
+                
+                topEpisodes.forEach((episode, index) => {
+                    summaryHTML += `
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#${index + 1}</td>
+                            ${titleColumn ? `<td class="px-6 py-4 text-sm text-gray-500">${episode[titleColumn]}</td>` : ''}
+                            ${dateColumn ? `<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${episode[dateColumn]}</td>` : ''}
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-purple-700">${Math.round(episode[numericColumn] || 0).toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+                
+                summaryHTML += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+                
+                // Episode performance chart
+                summaryHTML += `
+                    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                        <h2 class="text-xl font-semibold mb-4">Episode Performance</h2>
+                        <div class="chart-container">
+                            <canvas id="episodeChart"></canvas>
+                        </div>
+                    </div>
+                `;
+                
+                // Monthly performance chart
+                if (dateColumn) {
+                    summaryHTML += `
+                        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                            <h2 class="text-xl font-semibold mb-4">Monthly Performance</h2>
+                            <div class="chart-container">
+                                <canvas id="monthlyChart"></canvas>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Add best day of the week analysis
+            if (dateColumn && downloadColumn) {
+                const dayAnalysis = analyzeReleaseDay(data, dateColumn, downloadColumn);
+                
+                summaryHTML += `
+                    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                        <h2 class="text-xl font-semibold mb-4">Best Release Day Analysis</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <div class="chart-container">
+                                    <canvas id="dayOfWeekChart"></canvas>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-lg mb-2">Insights</h3>
+                                <p class="text-gray-700 mb-4">${dayAnalysis.bestDay} appears to be your best day for releases with an average of ${Math.round(dayAnalysis.bestDayAvg).toLocaleString()} downloads per episode.</p>
+                                
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Day</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Episodes</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg Downloads</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            ${dayAnalysis.dayStats.map(stat => `
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${stat.day === dayAnalysis.bestDay ? 'text-purple-700 font-bold' : 'text-gray-900'}">${stat.day}</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${stat.count}</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm ${stat.day === dayAnalysis.bestDay ? 'text-purple-700 font-bold' : 'text-gray-500'}">${Math.round(stat.avgDownloads).toLocaleString()}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Add title keyword analysis
+            if (titleColumn && downloadColumn) {
+                const keywordAnalysis = analyzeKeywords(data, titleColumn, downloadColumn);
+                
+                summaryHTML += `
+                    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                        <h2 class="text-xl font-semibold mb-4">Title Keyword Analysis</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="font-medium text-lg mb-2">Top Performing Keywords</h3>
+                                <p class="text-gray-600 mb-4">Keywords that appear in episodes with the highest average downloads</p>
+                                
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Keyword</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Occurrences</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg Downloads</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            ${keywordAnalysis.slice(0, 10).map((keyword, index) => `
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${index < 3 ? 'text-purple-700 font-bold' : 'text-gray-900'}">${keyword.word}</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${keyword.count}</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm ${index < 3 ? 'text-purple-700 font-bold' : 'text-gray-500'}">${Math.round(keyword.avgDownloads).toLocaleString()}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-lg mb-2">Keyword Insights</h3>
+                                <p class="text-gray-700 mb-3">Based on your data, episodes with the following keywords tend to perform better:</p>
+                                <ul class="list-disc pl-5 mb-4 space-y-1 text-gray-700">
+                                    ${keywordAnalysis.slice(0, 5).map(keyword => `
+                                        <li><span class="font-medium text-purple-700">${keyword.word}</span> (${Math.round(keyword.avgDownloads).toLocaleString()} avg downloads)</li>
+                                    `).join('')}
+                                </ul>
+                                <p class="text-gray-700 mt-4">Consider incorporating these popular keywords into future episode titles when relevant.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Add title format analysis
+                const formatAnalysis = analyzeTitleFormats(data, titleColumn, downloadColumn);
+                
+                summaryHTML += `
+                    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                        <h2 class="text-xl font-semibold mb-4">Title Format Analysis</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <h3 class="font-medium text-lg mb-2">Best Performing Title Formats</h3>
+                                <p class="text-gray-600 mb-4">Analysis of how different title formats affect download numbers</p>
+                                
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full divide-y divide-gray-200">
+                                        <thead class="bg-gray-50">
+                                            <tr>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Format Type</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Episodes</th>
+                                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg Downloads</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="bg-white divide-y divide-gray-200">
+                                            ${formatAnalysis.map((format, index) => `
+                                                <tr>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium ${index === 0 ? 'text-purple-700 font-bold' : 'text-gray-900'}">${format.type}</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${format.count}</td>
+                                                    <td class="px-6 py-4 whitespace-nowrap text-sm ${index === 0 ? 'text-purple-700 font-bold' : 'text-gray-500'}">${Math.round(format.avgDownloads).toLocaleString()}</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-lg mb-2">Format Insights</h3>
+                                <p class="text-gray-700 mb-3">Based on your data, these title formats tend to perform best:</p>
+                                
+                                <div class="bg-purple-50 p-4 rounded-lg mb-4">
+                                    <p class="font-medium text-purple-800 mb-1">Top Format: ${formatAnalysis[0].type}</p>
+                                    <p class="text-gray-700">Average downloads: ${Math.round(formatAnalysis[0].avgDownloads).toLocaleString()}</p>
+                                    <p class="text-gray-700 text-sm mt-2">Example titles:</p>
+                                    <ul class="list-disc pl-5 mt-1 text-sm text-gray-600">
+                                        ${formatAnalysis[0].examples.slice(0, 2).map(ex => `<li>${ex}</li>`).join('')}
+                                    </ul>
+                                </div>
+                                
+                                <p class="text-gray-700">Consider using more titles with the format pattern of your top performer.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Add growth trend analysis
+            if (dateColumn && downloadColumn) {
+                const growthAnalysis = analyzeGrowthTrends(data, dateColumn, downloadColumn, titleColumn);
+                
+                summaryHTML += `
+                    <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                        <h2 class="text-xl font-semibold mb-4">Growth Trend Analysis</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <div class="chart-container">
+                                    <canvas id="growthTrendChart"></canvas>
+                                </div>
+                            </div>
+                            <div>
+                                <h3 class="font-medium text-lg mb-2">Growth Insights</h3>
+                                
+                                <div class="bg-purple-50 p-4 rounded-lg mb-4">
+                                    <p class="font-medium text-purple-800 mb-1">Growth Rate</p>
+                                    <p class="text-gray-700">${growthAnalysis.growthRate > 0 ? 'Positive' : 'Negative'} trend: ${Math.abs(growthAnalysis.growthRate).toFixed(1)}% per month</p>
+                                    <p class="text-gray-700 mt-2">${growthAnalysis.recentTrend}</p>
+                                </div>
+                                
+                                <h4 class="font-medium mt-4 mb-2">Breakthrough Episodes</h4>
+                                <p class="text-gray-600 mb-2">Episodes that generated significant download spikes:</p>
+                                
+                                <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                                    ${growthAnalysis.breakthroughEpisodes.slice(0, 3).map(ep => `
+                                        <li>
+                                            <span class="font-medium text-purple-700">${ep.title || `Episode ${ep.index + 1}`}</span>
+                                            <span class="text-gray-600"> (${Math.round(ep.downloads).toLocaleString()} downloads)</span>
+                                        </li>
+                                    `).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Set the HTML content
+            results.innerHTML = summaryHTML;
+            
+            // Create charts
+            if (downloadColumn) {
+                createEpisodeChart(data, titleColumn, downloadColumn);
+                if (dateColumn) {
+                    createMonthlyChart(data, dateColumn, downloadColumn);
+                    createDayOfWeekChart(data, dateColumn, downloadColumn);
+                    createGrowthTrendChart(data, dateColumn, downloadColumn, titleColumn);
+                }
+                
+                // Add Smart Recommendation Engine
+                generateSmartRecommendations(data, titleColumn, dateColumn, downloadColumn);
+            }
+        }
+        
+        function findColumn(headers, possibleNames) {
+            // Try exact matches first
+            for (const name of possibleNames) {
+                const exactMatch = headers.find(header => 
+                    header.toLowerCase() === name.toLowerCase());
+                if (exactMatch) return exactMatch;
+            }
+            
+            // Then try contains matches
+            for (const name of possibleNames) {
+                const containsMatch = headers.find(header => 
+                    header.toLowerCase().includes(name.toLowerCase()));
+                if (containsMatch) return containsMatch;
+            }
+            
+            return null;
+        }
+        
+        function createEpisodeChart(data, titleColumn, downloadColumn) {
+            const numericColumn = downloadColumn + '_numeric';
+            
+            // Create chart data (limit to 20 episodes)
+            const chartData = data.slice(0, 20);
+            
+            const labels = chartData.map((row, index) => {
+                if (titleColumn) {
+                    const title = row[titleColumn];
+                    return title.length > 20 ? title.substring(0, 20) + '...' : title;
+                }
+                return `Episode ${index + 1}`;
+            });
+            
+            const downloadValues = chartData.map(row => row[numericColumn] || 0);
+            
+            const ctx = document.getElementById('episodeChart').getContext('2d');
+            
+            if (episodeChart) {
+                episodeChart.destroy();
+            }
+            
+            episodeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Downloads',
+                        data: downloadValues,
+                        backgroundColor: 'rgba(124, 58, 237, 0.7)',
+                        borderColor: 'rgba(124, 58, 237, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Downloads'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                autoSkip: true,
+                                maxRotation: 45
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Downloads: ${context.raw.toLocaleString()}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function createMonthlyChart(data, dateColumn, downloadColumn) {
+            const numericColumn = downloadColumn + '_numeric';
+            const monthlyData = {};
+            
+            data.forEach(row => {
+                if (!row[dateColumn]) return;
+                
+                try {
+                    const date = new Date(row[dateColumn]);
+                    if (isNaN(date.getTime())) return;
+                    
+                    const year = date.getFullYear();
+                    const month = date.getMonth() + 1;
+                    const monthKey = `${year}-${month.toString().padStart(2, '0')}`;
+                    
+                    const downloads = row[numericColumn] || 0;
+                    
+                    if (!monthlyData[monthKey]) {
+                        monthlyData[monthKey] = {
+                            downloads: 0,
+                            episodes: 0,
+                            label: new Date(year, month-1, 1).toLocaleDateString('en-US', {
+                                year: 'numeric', 
+                                month: 'short'
+                            })
+                        };
+                    }
+                    
+                    monthlyData[monthKey].downloads += downloads;
+                    monthlyData[monthKey].episodes++;
+                } catch (e) {
+                    console.log('Error processing date:', row[dateColumn], e);
+                }
+            });
+            
+            const sortedMonths = Object.keys(monthlyData).sort();
+            
+            const labels = sortedMonths.map(key => monthlyData[key].label);
+            const downloads = sortedMonths.map(key => monthlyData[key].downloads);
+            const episodes = sortedMonths.map(key => monthlyData[key].episodes);
+            
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            
+            if (monthlyChart) {
+                monthlyChart.destroy();
+            }
+            
+            monthlyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Total Downloads',
+                            data: downloads,
+                            backgroundColor: 'rgba(124, 58, 237, 0.7)',
+                            borderColor: 'rgba(124, 58, 237, 1)',
+                            borderWidth: 1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Episodes Released',
+                            data: episodes,
+                            backgroundColor: 'rgba(220, 38, 38, 0.7)',
+                            borderColor: 'rgba(220, 38, 38, 1)',
+                            borderWidth: 1,
+                            type: 'line',
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Downloads'
+                            }
+                        },
+                        y1: {
+                            beginAtZero: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false
+                            },
+                            title: {
+                                display: true,
+                                text: 'Episodes'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.dataset.label || '';
+                                    const value = context.raw;
+                                    return `${label}: ${value.toLocaleString()}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Function to analyze best day of the week for releases
+        function analyzeReleaseDay(data, dateColumn, downloadColumn) {
+            const numericColumn = downloadColumn + '_numeric';
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const dayStats = days.map(day => ({ day, count: 0, totalDownloads: 0, avgDownloads: 0 }));
+            
+            // Analyze each episode by day of week
+            data.forEach(row => {
+                if (!row[dateColumn]) return;
+                
+                try {
+                    const date = new Date(row[dateColumn]);
+                    if (isNaN(date.getTime())) return;
+                    
+                    const dayOfWeek = date.getDay(); // 0 = Sunday, 6 = Saturday
+                    const downloads = row[numericColumn] || 0;
+                    
+                    dayStats[dayOfWeek].count++;
+                    dayStats[dayOfWeek].totalDownloads += downloads;
+                } catch (e) {
+                    console.log('Error processing date for day analysis:', row[dateColumn]);
+                }
+            });
+            
+            // Calculate average downloads per day
+            dayStats.forEach(day => {
+                if (day.count > 0) {
+                    day.avgDownloads = day.totalDownloads / day.count;
+                }
+            });
+            
+            // Find the best day
+            let bestDay = '';
+            let bestDayAvg = 0;
+            
+            dayStats.forEach(day => {
+                if (day.count >= 3 && day.avgDownloads > bestDayAvg) { // Require at least 3 episodes to be significant
+                    bestDayAvg = day.avgDownloads;
+                    bestDay = day.day;
+                }
+            });
+            
+            // If no day has at least 3 episodes, just take the highest average
+            if (!bestDay) {
+                const sorted = [...dayStats].filter(d => d.count > 0).sort((a, b) => b.avgDownloads - a.avgDownloads);
+                if (sorted.length > 0) {
+                    bestDay = sorted[0].day;
+                    bestDayAvg = sorted[0].avgDownloads;
+                } else {
+                    bestDay = 'No specific day';
+                    bestDayAvg = 0;
+                }
+            }
+            
+            return {
+                dayStats: dayStats.filter(d => d.count > 0), // Only include days with episodes
+                bestDay,
+                bestDayAvg
+            };
+        }
+        
+        // Create the day of week chart
+        function createDayOfWeekChart(data, dateColumn, downloadColumn) {
+            const dayAnalysis = analyzeReleaseDay(data, dateColumn, downloadColumn);
+            const ctx = document.getElementById('dayOfWeekChart').getContext('2d');
+            
+            // Prepare chart data
+            const labels = dayAnalysis.dayStats.map(stat => stat.day);
+            const avgDownloads = dayAnalysis.dayStats.map(stat => stat.avgDownloads);
+            const episodeCounts = dayAnalysis.dayStats.map(stat => stat.count);
+            
+            // Set highlight colors
+            const backgroundColors = dayAnalysis.dayStats.map(stat => 
+                stat.day === dayAnalysis.bestDay ? 'rgba(124, 58, 237, 0.7)' : 'rgba(147, 197, 253, 0.7)'
+            );
+            const borderColors = dayAnalysis.dayStats.map(stat => 
+                stat.day === dayAnalysis.bestDay ? 'rgba(124, 58, 237, 1)' : 'rgba(147, 197, 253, 1)'
+            );
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Average Downloads',
+                        data: avgDownloads,
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Average Downloads'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const index = context.dataIndex;
+                                    const episodes = episodeCounts[index];
+                                    return [
+                                        `Average Downloads: ${Math.round(context.raw).toLocaleString()}`,
+                                        `Episodes: ${episodes}`
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Analyze keywords in episode titles
+        function analyzeKeywords(data, titleColumn, downloadColumn) {
+            const numericColumn = downloadColumn + '_numeric';
+            const keywords = {};
+            const stopWords = ['a', 'an', 'the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'with', 
+                              'by', 'about', 'as', 'into', 'like', 'through', 'after', 'over', 'between', 
+                              'out', 'of', 'from', 'up', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
+                              'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'shall', 'should',
+                              'can', 'could', 'may', 'might', 'must', 'that', 'which', 'who', 'whom', 'whose',
+                              'what', 'whatever', 'this', 'that', 'these', 'those', 'how', 'episode'];
+            
+            // Analyze each episode
+            data.forEach(row => {
+                if (!row[titleColumn]) return;
+                
+                const title = row[titleColumn].toLowerCase();
+                const words = title.split(/\W+/).filter(word => word.length > 3 && !stopWords.includes(word));
+                const downloads = row[numericColumn] || 0;
+                
+                // Track each keyword
+                words.forEach(word => {
+                    if (!keywords[word]) {
+                        keywords[word] = {
+                            count: 0,
+                            totalDownloads: 0,
+                            avgDownloads: 0
+                        };
+                    }
+                    
+                    keywords[word].count++;
+                    keywords[word].totalDownloads += downloads;
+                });
+            });
+            
+            // Calculate averages and format for display
+            const keywordStats = Object.keys(keywords)
+                .filter(word => keywords[word].count >= 2) // Only include keywords that appear in at least 2 episodes
+                .map(word => ({
+                    word,
+                    count: keywords[word].count,
+                    avgDownloads: keywords[word].totalDownloads / keywords[word].count
+                }))
+                .sort((a, b) => b.avgDownloads - a.avgDownloads);
+                
+            return keywordStats;
+        }
+        
+        // Analyze title formats
+        function analyzeTitleFormats(data, titleColumn, downloadColumn) {
+            const numericColumn = downloadColumn + '_numeric';
+            const formatTypes = [
+                { name: 'Question Format', regex: /\?/, examples: [] },
+                { name: 'Numbered List', regex: /(\d+\s+(ways|tips|steps|reasons|things|ideas|secrets|tricks|hacks|lessons|rules)|\d+\s+[^a-z]+\s+\d+)/i, examples: [] },
+                { name: 'How To Format', regex: /(how\s+to|guide\s+to)/i, examples: [] },
+                { name: 'Interview/Guest', regex: /(interview|with\s+|featuring|feat\.?|guest|special guest|hosted by)/i, examples: [] },
+                { name: 'Series/Part', regex: /(series|part\s+\d+|episode\s+\d+|\(\d+\)|#\d+|chapter)/i, examples: [] },
+                { name: 'Emotional/Dramatic', regex: /(amazing|incredible|mind-?blowing|shocking|surprising|unexpected|unbelievable|never|always|every|stunning|breathtaking|essential)/i, examples: [] },
+                { name: 'Personal Story', regex: /(story|journey|experience|confession|my|I|we|our|personal)/i, examples: [] },
+                { name: 'Emoji in Title', regex: /[\p{Emoji}]/u, examples: [] }
+            ];
+            
+            const formatStats = formatTypes.map(type => ({
+                type: type.name,
+                count: 0,
+                totalDownloads: 0,
+                avgDownloads: 0,
+                examples: []
+            }));
+            
+            // Analyze each episode
+            data.forEach(row => {
+                if (!row[titleColumn]) return;
+                
+                const title = row[titleColumn];
+                const downloads = row[numericColumn] || 0;
+                
+                // Check each format type
+                formatTypes.forEach((format, index) => {
+                    if (format.regex.test(title)) {
+                        formatStats[index].count++;
+                        formatStats[index].totalDownloads += downloads;
+                        
+                        // Store example titles (up to 5)
+                        if (formatStats[index].examples.length < 5) {
+                            formatStats[index].examples.push(title);
+                        }
+                    }
+                });
+            });
+            
+            // Calculate averages
+            formatStats.forEach(stat => {
+                if (stat.count > 0) {
+                    stat.avgDownloads = stat.totalDownloads / stat.count;
+                }
+            });
+            
+            // Sort by average downloads (highest first)
+            const sortedStats = formatStats
+                .filter(stat => stat.count >= 2) // Only include format types with at least 2 episodes
+                .sort((a, b) => b.avgDownloads - a.avgDownloads);
+            
+            // If no formats had at least 2 episodes, include any with at least 1
+            if (sortedStats.length === 0) {
+                return formatStats
+                    .filter(stat => stat.count > 0)
+                    .sort((a, b) => b.avgDownloads - a.avgDownloads);
+            }
+            
+            return sortedStats;
+        }
+        
+        // Analyze growth trends
+        function analyzeGrowthTrends(data, dateColumn, downloadColumn, titleColumn = null) {
+            // If titleColumn is not provided, try to use a known title column
+            if (!titleColumn) {
+                // Try to find the title column from common column names
+                titleColumn = findColumn(Object.keys(data[0] || {}), ['title', 'name', 'episode title', 'clip title', 'episode name', 'clip name']);
+            }
+            const numericColumn = downloadColumn + '_numeric';
+            const sortedData = [...data]
+                .filter(row => row[dateColumn] && !isNaN(new Date(row[dateColumn]).getTime()))
+                .sort((a, b) => new Date(a[dateColumn]) - new Date(b[dateColumn]));
+            
+            if (sortedData.length < 2) {
+                return {
+                    growthRate: 0,
+                    recentTrend: "Not enough data to determine growth trend.",
+                    breakthroughEpisodes: []
+                };
+            }
+            
+            // Group by month
+            const monthlyData = {};
+            
+            sortedData.forEach(row => {
+                const date = new Date(row[dateColumn]);
+                const year = date.getFullYear();
+                const month = date.getMonth();
+                const monthKey = `${year}-${month}`;
+                
+                if (!monthlyData[monthKey]) {
+                    monthlyData[monthKey] = {
+                        date: new Date(year, month, 1),
+                        totalDownloads: 0,
+                        episodes: 0,
+                        episodesData: []
+                    };
+                }
+                
+                const downloads = row[numericColumn] || 0;
+                monthlyData[monthKey].totalDownloads += downloads;
+                monthlyData[monthKey].episodes++;
+                monthlyData[monthKey].episodesData.push({
+                    title: row[titleColumn],
+                    downloads: downloads,
+                    index: sortedData.indexOf(row)
+                });
+            });
+            
+            // Convert to array and sort by date
+            const monthlyArray = Object.values(monthlyData).sort((a, b) => a.date - b.date);
+            
+            // Calculate month-over-month growth
+            let totalGrowthRate = 0;
+            let growthDataPoints = 0;
+            let recentTrendDescription = "";
+            
+            for (let i = 1; i < monthlyArray.length; i++) {
+                const prevMonth = monthlyArray[i - 1];
+                const currentMonth = monthlyArray[i];
+                
+                // Only compare months with episodes
+                if (prevMonth.episodes > 0 && currentMonth.episodes > 0) {
+                    const prevAvg = prevMonth.totalDownloads / prevMonth.episodes;
+                    const currentAvg = currentMonth.totalDownloads / currentMonth.episodes;
+                    
+                    const growthRate = ((currentAvg - prevAvg) / prevAvg) * 100;
+                    totalGrowthRate += growthRate;
+                    growthDataPoints++;
+                    
+                    // Store recent trend description (last 3 months)
+                    if (i >= monthlyArray.length - 3) {
+                        const direction = growthRate >= 0 ? "up" : "down";
+                        const month = currentMonth.date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                        
+                        if (Math.abs(growthRate) < 5) {
+                            recentTrendDescription += `${month}: Stable (${growthRate.toFixed(1)}%)\n`;
+                        } else {
+                            recentTrendDescription += `${month}: ${direction.toUpperCase()} by ${Math.abs(growthRate).toFixed(1)}%\n`;
+                        }
+                    }
+                }
+            }
+            
+            // Calculate average monthly growth rate
+            const avgGrowthRate = growthDataPoints > 0 ? totalGrowthRate / growthDataPoints : 0;
+            
+            // Identify breakthrough episodes (episodes with significantly higher downloads than previous episodes)
+            const breakthroughEpisodes = [];
+            let rollingAvg = 0;
+            let episodeCount = 0;
+            
+            sortedData.forEach((row, index) => {
+                const downloads = row[numericColumn] || 0;
+                
+                if (index > 0) {
+                    // Calculate current rolling average (excluding this episode)
+                    const currentAvg = rollingAvg;
+                    
+                    // If this episode has at least 50% more downloads than the rolling average, it's a breakthrough
+                    if (downloads > currentAvg * 1.5 && downloads > 1000) {
+                        breakthroughEpisodes.push({
+                            title: row[titleColumn],
+                            downloads: downloads,
+                            index: index
+                        });
+                    }
+                }
+                
+                // Update rolling average
+                rollingAvg = (rollingAvg * episodeCount + downloads) / (episodeCount + 1);
+                episodeCount++;
+            });
+            
+            // Sort breakthrough episodes by downloads (highest first)
+            breakthroughEpisodes.sort((a, b) => b.downloads - a.downloads);
+            
+            return {
+                growthRate: avgGrowthRate,
+                recentTrend: recentTrendDescription || "No recent trend data available.",
+                breakthroughEpisodes: breakthroughEpisodes
+            };
+        }
+        
+        // Create growth trend chart
+        function createGrowthTrendChart(data, dateColumn, downloadColumn, titleColumn = null) {
+            // If titleColumn is not provided, try to use a known title column
+            if (!titleColumn) {
+                // Try to find the title column from common column names
+                titleColumn = findColumn(Object.keys(data[0] || {}), ['title', 'name', 'episode title', 'clip title', 'episode name', 'clip name']);
+            }
+            const numericColumn = downloadColumn + '_numeric';
+            const monthlyData = {};
+            
+            // Group by month
+            data.forEach(row => {
+                if (!row[dateColumn]) return;
+                
+                try {
+                    const date = new Date(row[dateColumn]);
+                    if (isNaN(date.getTime())) return;
+                    
+                    const year = date.getFullYear();
+                    const month = date.getMonth();
+                    const monthKey = `${year}-${month}`;
+                    
+                    if (!monthlyData[monthKey]) {
+                        monthlyData[monthKey] = {
+                            date: new Date(year, month, 1),
+                            totalDownloads: 0,
+                            episodes: 0,
+                            avgDownloads: 0,
+                            label: new Date(year, month, 1).toLocaleDateString('en-US', { 
+                                year: 'numeric', 
+                                month: 'short' 
+                            })
+                        };
+                    }
+                    
+                    const downloads = row[numericColumn] || 0;
+                    monthlyData[monthKey].totalDownloads += downloads;
+                    monthlyData[monthKey].episodes++;
+                } catch (e) {
+                    console.log('Error processing date for growth trend:', row[dateColumn]);
+                }
+            });
+            
+            // Calculate average downloads per month
+            Object.keys(monthlyData).forEach(key => {
+                if (monthlyData[key].episodes > 0) {
+                    monthlyData[key].avgDownloads = monthlyData[key].totalDownloads / monthlyData[key].episodes;
+                }
+            });
+            
+            // Sort by date
+            const sortedMonths = Object.keys(monthlyData)
+                .sort((a, b) => monthlyData[a].date - monthlyData[b].date);
+            
+            // Calculate growth rates
+            const growthRates = [];
+            for (let i = 1; i < sortedMonths.length; i++) {
+                const prevMonth = monthlyData[sortedMonths[i-1]];
+                const currentMonth = monthlyData[sortedMonths[i]];
+                
+                if (prevMonth.episodes > 0 && currentMonth.episodes > 0) {
+                    const growthRate = ((currentMonth.avgDownloads - prevMonth.avgDownloads) / prevMonth.avgDownloads) * 100;
+                    growthRates.push({
+                        month: currentMonth.label,
+                        rate: growthRate
+                    });
+                }
+            }
+            
+            // Apply smoothing to normalize extreme values
+            const normalizedRates = [...growthRates];
+            
+            // Calculate mean and standard deviation
+            let sum = 0;
+            let sumSq = 0;
+            const validRates = growthRates.filter(item => !isNaN(item.rate));
+            
+            validRates.forEach(item => {
+                sum += item.rate;
+                sumSq += item.rate * item.rate;
+            });
+            
+            const mean = sum / validRates.length;
+            const variance = sumSq / validRates.length - mean * mean;
+            const stdDev = Math.sqrt(variance);
+            
+            // Identify and cap outliers (values more than 2 standard deviations from mean)
+            normalizedRates.forEach(item => {
+                // If it's more than 2 standard deviations from the mean, cap it
+                if (Math.abs(item.rate - mean) > 2 * stdDev) {
+                    // Cap the value at mean + 2*stdDev (or mean - 2*stdDev for negative values)
+                    if (item.rate > mean) {
+                        item.rate = mean + 2 * stdDev;
+                    } else {
+                        item.rate = mean - 2 * stdDev;
+                    }
+                }
+            });
+            
+            // Calculate a 3-month moving average to smooth the trend line
+            const smoothedRates = [];
+            for (let i = 0; i < normalizedRates.length; i++) {
+                if (i === 0) {
+                    // For the first month, just use its own rate
+                    smoothedRates.push({
+                        month: normalizedRates[i].month,
+                        rate: normalizedRates[i].rate
+                    });
+                } else if (i === normalizedRates.length - 1) {
+                    // For the last month, average with the previous month
+                    const avgRate = (normalizedRates[i-1].rate + normalizedRates[i].rate) / 2;
+                    smoothedRates.push({
+                        month: normalizedRates[i].month,
+                        rate: avgRate
+                    });
+                } else {
+                    // For middle months, use 3-month moving average
+                    const avgRate = (normalizedRates[i-1].rate + normalizedRates[i].rate + normalizedRates[i+1].rate) / 3;
+                    smoothedRates.push({
+                        month: normalizedRates[i].month,
+                        rate: avgRate
+                    });
+                }
+            }
+            
+            // Prepare chart data
+            const labels = smoothedRates.map(item => item.month);
+            const rateData = smoothedRates.map(item => item.rate);
+            const originalRateData = growthRates.map(item => item.rate);
+            
+            // Create color array based on positive/negative growth
+            const backgroundColors = rateData.map(rate => 
+                rate >= 0 ? 'rgba(52, 211, 153, 0.7)' : 'rgba(248, 113, 113, 0.7)'
+            );
+            const borderColors = rateData.map(rate => 
+                rate >= 0 ? 'rgba(16, 185, 129, 1)' : 'rgba(239, 68, 68, 1)'
+            );
+            
+            const ctx = document.getElementById('growthTrendChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Normalized Growth Rate (%)',
+                            data: rateData,
+                            backgroundColor: backgroundColors,
+                            borderColor: borderColors,
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Raw Growth Rate (%)',
+                            data: originalRateData,
+                            type: 'line',
+                            borderColor: 'rgba(107, 114, 128, 0.7)',
+                            borderWidth: 1,
+                            borderDash: [5, 5],
+                            pointRadius: 3,
+                            pointBackgroundColor: 'rgba(107, 114, 128, 0.7)',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            title: {
+                                display: true,
+                                text: 'Growth Rate (%)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const datasetLabel = context.dataset.label || '';
+                                    const value = context.raw;
+                                    return `${datasetLabel}: ${value.toFixed(1)}%`;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Smart Recommendation Engine for Podcast Growth
+        function generateSmartRecommendations(data, titleColumn, dateColumn, downloadColumn) {
+            // If required columns are missing, don't generate recommendations
+            if (!titleColumn || !dateColumn || !downloadColumn) {
+                return;
+            }
+
+            const numericColumn = downloadColumn + '_numeric';
+            const recommendations = [];
+            const insightsData = {};
+            
+            // Get best performing day analysis
+            if (dateColumn) {
+                const dayAnalysis = analyzeReleaseDay(data, dateColumn, downloadColumn);
+                insightsData.bestDay = dayAnalysis.bestDay;
+                insightsData.worstDay = [...dayAnalysis.dayStats].sort((a, b) => a.avgDownloads - b.avgDownloads)[0].day;
+                
+                if (insightsData.bestDay && insightsData.bestDay !== 'No specific day') {
+                    recommendations.push({
+                        category: 'Release Schedule',
+                        title: `Release on ${insightsData.bestDay}s for Maximum Downloads`,
+                        description: `Your episodes released on ${insightsData.bestDay}s perform best with an average of ${Math.round(dayAnalysis.bestDayAvg).toLocaleString()} downloads. Consider adjusting your publishing schedule to prioritize this day.`,
+                        impact: 'high'
+                    });
+                }
+                
+                if (insightsData.worstDay && insightsData.worstDay !== insightsData.bestDay) {
+                    const worstDayStats = dayAnalysis.dayStats.find(d => d.day === insightsData.worstDay);
+                    recommendations.push({
+                        category: 'Release Schedule',
+                        title: `Avoid Releasing on ${insightsData.worstDay}s`,
+                        description: `Episodes released on ${insightsData.worstDay}s perform significantly worse with only ${Math.round(worstDayStats.avgDownloads).toLocaleString()} average downloads. Consider moving these releases to your best-performing day.`,
+                        impact: 'medium'
+                    });
+                }
+            }
+            
+            // Analyze title keywords
+            if (titleColumn) {
+                const keywordAnalysis = analyzeKeywords(data, titleColumn, downloadColumn);
+                insightsData.bestKeywords = keywordAnalysis.slice(0, 5);
+                
+                if (insightsData.bestKeywords && insightsData.bestKeywords.length > 0) {
+                    const keywordList = insightsData.bestKeywords.map(k => `"${k.word}"`).join(', ');
+                    recommendations.push({
+                        category: 'Title Optimization',
+                        title: 'Use High-Performing Keywords in Titles',
+                        description: `Episodes with these keywords perform best: ${keywordList}. Incorporate these keywords strategically in future episode titles to potentially increase downloads.`,
+                        impact: 'high'
+                    });
+                }
+                
+                // Analyze title formats
+                const formatAnalysis = analyzeTitleFormats(data, titleColumn, downloadColumn);
+                if (formatAnalysis && formatAnalysis.length > 0) {
+                    insightsData.bestFormat = formatAnalysis[0];
+                    
+                    recommendations.push({
+                        category: 'Title Format',
+                        title: `Use the "${insightsData.bestFormat.type}" Title Format`,
+                        description: `Episodes with "${insightsData.bestFormat.type}" titles (like "${insightsData.bestFormat.examples[0]}") average ${Math.round(insightsData.bestFormat.avgDownloads).toLocaleString()} downloads, which is ${formatAnalysis.length > 1 ? Math.round((insightsData.bestFormat.avgDownloads / formatAnalysis[1].avgDownloads - 1) * 100) + '% better than other formats' : 'your best performing format'}.`,
+                        impact: 'medium'
+                    });
+                }
+            }
+            
+            // Analyze growth trends
+            if (dateColumn && downloadColumn) {
+                const growthAnalysis = analyzeGrowthTrends(data, dateColumn, downloadColumn, titleColumn);
+                
+                // Get recent trend direction
+                const recentTrendText = growthAnalysis.recentTrend;
+                const trendLines = recentTrendText.split('\n').filter(line => line.trim() !== '');
+                let trendDirection = 'stable';
+                
+                if (trendLines.length > 0) {
+                    const lastTrendLine = trendLines[trendLines.length - 1];
+                    if (lastTrendLine.includes('UP')) {
+                        trendDirection = 'up';
+                    } else if (lastTrendLine.includes('DOWN')) {
+                        trendDirection = 'down';
+                    }
+                }
+                
+                // Check for breakthrough episodes
+                const breakthroughEpisodes = growthAnalysis.breakthroughEpisodes;
+                if (breakthroughEpisodes && breakthroughEpisodes.length > 0) {
+                    const topBreakthrough = breakthroughEpisodes[0];
+                    
+                    recommendations.push({
+                        category: 'Content Strategy',
+                        title: 'Analyze Your Breakthrough Episode',
+                        description: `Your episode "${topBreakthrough.title}" significantly outperformed others with ${Math.round(topBreakthrough.downloads).toLocaleString()} downloads. Analyze what made this episode special (topic, guests, promotion) and replicate these elements.`,
+                        impact: 'high'
+                    });
+                }
+                
+                // Add trend-based recommendations
+                if (trendDirection === 'down') {
+                    recommendations.push({
+                        category: 'Growth Strategy',
+                        title: 'Reverse Negative Download Trend',
+                        description: 'Your downloads are trending downward recently. Consider refreshing your content strategy, increasing promotion on social media, or running a special series to re-engage listeners.',
+                        impact: 'high'
+                    });
+                } else if (trendDirection === 'up') {
+                    recommendations.push({
+                        category: 'Growth Strategy',
+                        title: 'Capitalize on Positive Momentum',
+                        description: 'Your downloads are trending upward! This is a great time to convert new listeners into subscribers. Consider mentioning subscription benefits and cross-promoting other episodes in your intro/outro.',
+                        impact: 'medium'
+                    });
+                }
+                
+                // Consistency check
+                const episodeFrequency = analyzePublishingConsistency(data, dateColumn);
+                if (episodeFrequency.consistency < 0.7) { // Less than 70% consistent
+                    recommendations.push({
+                        category: 'Publishing Schedule',
+                        title: 'Improve Publishing Consistency',
+                        description: 'Your publishing schedule appears inconsistent, which can impact audience building. Try to establish and maintain a predictable release schedule - consistency helps build audience habits.',
+                        impact: 'high'
+                    });
+                }
+            }
+            
+            // Add recommendations for shows with few episodes
+            if (data.length < 10) {
+                recommendations.push({
+                    category: 'Analytics',
+                    title: 'Build More Episode History',
+                    description: 'With only ' + data.length + ' episodes analyzed, some patterns may not be statistically significant yet. Continue building your catalog and analyzing trends as you grow.',
+                    impact: 'low'
+                });
+            }
+            
+            // Add seasonal release recommendation if enough data
+            if (data.length >= 12 && dateColumn) {
+                const seasonalAnalysis = analyzeSeasonalPerformance(data, dateColumn, downloadColumn);
+                const bestMonth = seasonalAnalysis.bestMonth;
+                
+                if (bestMonth) {
+                    recommendations.push({
+                        category: 'Seasonal Strategy',
+                        title: 'Optimize for Seasonal Performance',
+                        description: `${bestMonth} appears to be your best performing month. Consider planning special episodes or series during this period, or increasing your publishing frequency to capitalize on higher listener engagement.`,
+                        impact: 'medium'
+                    });
+                }
+            }
+            
+            // Sort recommendations by impact
+            const impactOrder = { 'high': 0, 'medium': 1, 'low': 2 };
+            recommendations.sort((a, b) => impactOrder[a.impact] - impactOrder[b.impact]);
+            
+            // Only keep top 5 recommendations
+            const topRecommendations = recommendations.slice(0, 5);
+            
+            // Display recommendations
+            displaySmartRecommendations(topRecommendations);
+        }
+        
+        // Display smart recommendations
+        function displaySmartRecommendations(recommendations) {
+            if (!recommendations || recommendations.length === 0) {
+                return;
+            }
+            
+            const resultsDiv = document.getElementById('results');
+            
+            // Create recommendation HTML
+            const recommendationsHTML = `
+                <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                    <h2 class="text-xl font-semibold mb-4 flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Smart Growth Recommendations
+                    </h2>
+                    <p class="text-gray-600 mb-6">Based on your data, here are personalized recommendations to help grow your podcast:</p>
+                    
+                    <div class="space-y-4">
+                        ${recommendations.map((rec, index) => `
+                            <div class="border ${getImpactBorderColor(rec.impact)} rounded-lg p-4">
+                                <div class="flex items-start">
+                                    <div class="bg-gray-100 rounded-full p-2 mr-4">
+                                        <span class="text-lg font-bold text-gray-700">${index + 1}</span>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex items-center mb-1">
+                                            <h3 class="font-medium text-lg">${rec.title}</h3>
+                                            <span class="ml-auto px-2 py-1 text-xs font-semibold rounded-full ${getImpactBadgeColor(rec.impact)}">
+                                                ${capitalizeFirst(rec.impact)} Impact
+                                            </span>
+                                        </div>
+                                        <p class="text-gray-600 text-sm mb-2">${rec.description}</p>
+                                        <div class="text-xs text-gray-500 font-medium">${rec.category}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            // Add recommendations to results
+            resultsDiv.insertAdjacentHTML('beforeend', recommendationsHTML);
+        }
+        
+        // Helper function for recommendation impact colors
+        function getImpactBorderColor(impact) {
+            switch(impact) {
+                case 'high': return 'border-purple-500';
+                case 'medium': return 'border-blue-400';
+                case 'low': return 'border-gray-300';
+                default: return 'border-gray-200';
+            }
+        }
+        
+        // Helper function for recommendation impact badge colors
+        function getImpactBadgeColor(impact) {
+            switch(impact) {
+                case 'high': return 'bg-purple-100 text-purple-800';
+                case 'medium': return 'bg-blue-100 text-blue-800';
+                case 'low': return 'bg-gray-100 text-gray-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+        
+        // Helper function to capitalize first letter
+        function capitalizeFirst(string) {
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+        
+        // Analyze publishing consistency
+        function analyzePublishingConsistency(data, dateColumn) {
+            if (!data || data.length < 3 || !dateColumn) {
+                return { consistency: 0, averageDaysBetween: 0 };
+            }
+            
+            // Sort by date
+            const sortedData = [...data]
+                .filter(row => row[dateColumn] && !isNaN(new Date(row[dateColumn]).getTime()))
+                .sort((a, b) => new Date(a[dateColumn]) - new Date(b[dateColumn]));
+            
+            if (sortedData.length < 3) {
+                return { consistency: 0, averageDaysBetween: 0 };
+            }
+            
+            // Calculate days between episodes
+            const daysBetween = [];
+            for (let i = 1; i < sortedData.length; i++) {
+                const prevDate = new Date(sortedData[i-1][dateColumn]);
+                const currDate = new Date(sortedData[i][dateColumn]);
+                
+                const diffTime = Math.abs(currDate - prevDate);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                
+                daysBetween.push(diffDays);
+            }
+            
+            // Calculate average and standard deviation
+            const sum = daysBetween.reduce((a, b) => a + b, 0);
+            const avg = sum / daysBetween.length;
+            
+            const sumSquaredDiff = daysBetween.reduce((a, b) => a + Math.pow(b - avg, 2), 0);
+            const stdDev = Math.sqrt(sumSquaredDiff / daysBetween.length);
+            
+            // Calculate coefficient of variation (lower means more consistent)
+            const cv = stdDev / avg;
+            
+            // Convert to consistency score (1 - cv, bounded between 0 and 1)
+            const consistency = Math.max(0, Math.min(1, 1 - cv));
+            
+            return {
+                consistency,
+                averageDaysBetween: avg
+            };
+        }
+        
+        // Analyze seasonal performance
+        function analyzeSeasonalPerformance(data, dateColumn, downloadColumn) {
+            const numericColumn = downloadColumn + '_numeric';
+            const monthlyData = {};
+            
+            // Group by month
+            data.forEach(row => {
+                if (!row[dateColumn]) return;
+                
+                try {
+                    const date = new Date(row[dateColumn]);
+                    if (isNaN(date.getTime())) return;
+                    
+                    // Get month name
+                    const monthName = date.toLocaleString('en-US', { month: 'long' });
+                    
+                    if (!monthlyData[monthName]) {
+                        monthlyData[monthName] = {
+                            downloads: 0,
+                            episodes: 0,
+                            avgDownloads: 0
+                        };
+                    }
+                    
+                    const downloads = row[numericColumn] || 0;
+                    monthlyData[monthName].downloads += downloads;
+                    monthlyData[monthName].episodes++;
+                } catch (e) {
+                    console.log('Error processing date for seasonal analysis:', row[dateColumn]);
+                }
+            });
+            
+            // Calculate average downloads per month
+            let bestMonth = '';
+            let bestMonthAvg = 0;
+            
+            Object.keys(monthlyData).forEach(month => {
+                if (monthlyData[month].episodes > 0) {
+                    monthlyData[month].avgDownloads = monthlyData[month].downloads / monthlyData[month].episodes;
+                    
+                    if (monthlyData[month].avgDownloads > bestMonthAvg) {
+                        bestMonthAvg = monthlyData[month].avgDownloads;
+                        bestMonth = month;
+                    }
+                }
+            });
+            
+            return {
+                monthlyPerformance: monthlyData,
+                bestMonth: bestMonth
+            };
+        }
+    </script>
+</body>
+</html>
