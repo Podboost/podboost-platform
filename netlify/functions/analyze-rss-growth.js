@@ -1,8 +1,4 @@
-// RSS Growth Analysis with proper SSL handling
-const https = require('https');
-const http = require('http');
-const url = require('url');
-
+// RSS Growth Analysis using fetch for better Netlify compatibility
 exports.handler = async (event, context) => {
     const headers = {
         'Access-Control-Allow-Origin': '*',
@@ -35,8 +31,23 @@ exports.handler = async (event, context) => {
             };
         }
 
-        const feedData = await fetchRSSFeed(feedUrl);
-        const rssData = parseRSSForGrowth(feedData);
+        // Use fetch for better SSL compatibility in serverless environment
+        const response = await fetch(feedUrl, {
+            method: 'GET',
+            headers: {
+                'User-Agent': 'PodBoost Growth Engine 1.0',
+                'Accept': 'application/rss+xml, application/xml, text/xml, */*'
+            },
+            redirect: 'follow',
+            timeout: 15000
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const rssText = await response.text();
+        const rssData = parseRSSForGrowth(rssText);
         const growthAnalysis = generateGrowthAnalysis(rssData);
 
         return {
@@ -69,66 +80,6 @@ exports.handler = async (event, context) => {
         };
     }
 };
-
-async function fetchRSSFeed(feedUrl) {
-    return new Promise((resolve, reject) => {
-        const parsedUrl = new URL(feedUrl);
-        const isHttps = parsedUrl.protocol === 'https:';
-        const client = isHttps ? https : http;
-        
-        const options = {
-            hostname: parsedUrl.hostname,
-            port: parsedUrl.port || (isHttps ? 443 : 80),
-            path: parsedUrl.pathname + parsedUrl.search,
-            method: 'GET',
-            headers: {
-                'User-Agent': 'PodBoost Growth Engine 1.0',
-                'Accept': 'application/rss+xml, application/xml, text/xml'
-            }
-        };
-
-        // Configure SSL options to be more permissive
-        if (isHttps) {
-            options.rejectUnauthorized = false;
-            options.secureProtocol = 'TLSv1_2_method';
-        }
-
-        const request = client.request(options, (response) => {
-            // Handle redirects
-            if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
-                const redirectUrl = url.resolve(feedUrl, response.headers.location);
-                return fetchRSSFeed(redirectUrl).then(resolve).catch(reject);
-            }
-
-            if (response.statusCode !== 200) {
-                reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
-                return;
-            }
-
-            let data = '';
-            response.setEncoding('utf8');
-            response.on('data', chunk => data += chunk);
-            response.on('end', () => resolve(data));
-        });
-
-        request.on('error', (error) => {
-            // Try HTTP fallback for HTTPS errors
-            if (isHttps && feedUrl.startsWith('https://')) {
-                const httpUrl = feedUrl.replace('https://', 'http://');
-                console.log('HTTPS failed, trying HTTP:', httpUrl);
-                return fetchRSSFeed(httpUrl).then(resolve).catch(reject);
-            }
-            reject(error);
-        });
-
-        request.setTimeout(15000, () => {
-            request.destroy();
-            reject(new Error('Request timeout'));
-        });
-
-        request.end();
-    });
-}
 
 function parseRSSForGrowth(rssText) {
     const extractContent = (pattern) => {

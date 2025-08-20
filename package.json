@@ -1,16 +1,27 @@
 {
-  "name": "podboost",
+  "name": "podboost-platform",
   "version": "1.0.0",
-  "description": "PodBoost - Podcast Growth Platform",
-  "main": "index.html",
+  "description": "Comprehensive SaaS platform for podcast management and growth",
+  "main": "index.js",
   "scripts": {
-    "build": "echo 'Static build complete'"
+    "build": "echo 'Build completed'",
+    "start": "node server.js"
   },
   "dependencies": {
-    "openai": "^4.52.0",
-    "stripe": "^13.0.0"
   },
-  "keywords": ["podcast", "analytics", "growth"],
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/podboost.git"
+  },
+  "keywords": [
+    "podcast",
+    "analytics",
+    "rss",
+    "sponsorship",
+    "growth",
+    "saas"
+  ],
   "author": "PodBoost",
   "license": "MIT"
 }
