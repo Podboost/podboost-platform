@@ -1,0 +1,71 @@
+<!-- PodBoost Navigation Component -->
+<div class="bg-gray-800/80 border-b border-[#1e90ff]/30 py-2 sm:py-3 px-4 sm:px-6 flex items-center justify-between">
+    <div class="flex items-center">
+        <a href="/" class="flex items-center">
+            <img src="/images/podboost-logo-new.png" alt="PodBoost Logo" class="h-8 sm:h-10 mr-2 sm:mr-3 logo-glow">
+            <div class="flex flex-col">
+                <span class="text-lg sm:text-xl font-bold text-[#1e90ff] podboost-glow">PodBoost</span>
+                <span class="text-xs text-gray-400 hidden sm:block">
+                    <a href="https://podshape.com/" target="_blank" class="hover:text-[#1e90ff] transition-colors">a podshape company</a>
+                </span>
+            </div>
+        </a>
+    </div>
+    <div class="hidden md:flex space-x-4 items-center">
+        <a href="/" class="text-gray-300 hover:text-[#1e90ff] transition-colors">Home</a>
+        <a href="podcast-analytics.html" class="text-gray-300 hover:text-[#1e90ff] transition-colors">Analytics</a>
+        <a href="rss-checker.html" class="text-gray-300 hover:text-[#1e90ff] transition-colors">RSS Checker</a>
+        <a href="growth-engine.html" class="text-gray-300 hover:text-[#1e90ff] transition-colors">Growth Engine</a>
+        <a href="sponsorship-finder.html" class="text-gray-300 hover:text-[#1e90ff] transition-colors">Sponsor Finder</a>
+        <a href="social-media-tracker.html" class="text-gray-300 hover:text-[#1e90ff] transition-colors">Social Tracker</a>
+        <a href="campaigns.html" class="text-gray-300 hover:text-[#1e90ff] transition-colors">Campaigns</a>
+        <a href="/premium" class="ml-2 sm:ml-4 px-2 sm:px-3 py-1 text-xs sm:text-sm font-medium bg-gradient-to-r from-[#1e90ff] to-[#36b4ff] text-white rounded-full">Premium ($7/mo)</a>
+    </div>
+    <div class="md:hidden">
+        <button id="mobileMenuButton" class="text-gray-300 hover:text-[#1e90ff]">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+    </div>
+</div>
+
+<!-- Mobile menu, show/hide based on menu state -->
+<div id="mobileMenu" class="md:hidden hidden bg-gray-800 border-b border-[#1e90ff]/30">
+    <div class="px-2 pt-2 pb-3 space-y-1">
+        <a href="/" class="block px-3 py-2 text-base font-medium text-gray-300 hover:text-[#1e90ff] hover:bg-gray-700 rounded-md">Home</a>
+        <a href="podcast-analytics.html" class="block px-3 py-2 text-base font-medium text-gray-300 hover:text-[#1e90ff] hover:bg-gray-700 rounded-md">Analytics</a>
+        <a href="rss-checker.html" class="block px-3 py-2 text-base font-medium text-gray-300 hover:text-[#1e90ff] hover:bg-gray-700 rounded-md">RSS Checker</a>
+        <a href="growth-engine.html" class="block px-3 py-2 text-base font-medium text-gray-300 hover:text-[#1e90ff] hover:bg-gray-700 rounded-md">Growth Engine</a>
+        <a href="sponsorship-finder.html" class="block px-3 py-2 text-base font-medium text-gray-300 hover:text-[#1e90ff] hover:bg-gray-700 rounded-md">Sponsor Finder</a>
+        <a href="social-media-tracker.html" class="block px-3 py-2 text-base font-medium text-gray-300 hover:text-[#1e90ff] hover:bg-gray-700 rounded-md">Social Tracker</a>
+        <a href="campaigns.html" class="block px-3 py-2 text-base font-medium text-gray-300 hover:text-[#1e90ff] hover:bg-gray-700 rounded-md">Campaigns</a>
+        <a href="/premium" class="block px-3 py-2 text-base font-medium bg-gradient-to-r from-[#1e90ff] to-[#36b4ff] text-white rounded-md">Premium ($7/mo)</a>
+    </div>
+</div>
+
+<!-- Mobile menu toggle script -->
+<script>
+    document.getElementById('mobileMenuButton').addEventListener('click', function() {
+        const mobileMenu = document.getElementById('mobileMenu');
+        mobileMenu.classList.toggle('hidden');
+    });
+
+    // Premium access check function
+    function checkPremiumAccess(event, url) {
+        event.preventDefault();
+        
+        // Check if user has premium access (simple localStorage check for demo)
+        const hasPremium = localStorage.getItem('podboost_premium') === 'true';
+        
+        if (hasPremium) {
+            window.location.href = url;
+        } else {
+            // Show premium upgrade prompt
+            if (confirm('Social Impact tracking is a premium feature. Would you like to upgrade to access advanced social media analytics and tracking?')) {
+                // Redirect to premium signup
+                window.location.href = '/premium-signup?feature=social-impact';
+            }
+        }
+    }
+</script>
