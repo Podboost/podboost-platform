@@ -3,512 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI-Powered Sponsorship Finder - PodBoost</title>
-    <link rel="icon" type="image/png" href="images/podboost-logo-new.png">
+    <title>Sponsorship Finder - PodBoost</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="auth-check.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'podboost-blue': '#4F96FF',
-                        'podboost-highlight': '#3B7DD8',
-                        'premium-gold': '#FFD700',
-                        'deep-navy': '#0A0E1A'
-                    }
-                }
-            }
-        }
-    </script>
 </head>
-<body class="bg-deep-navy text-white min-h-screen">
-    <!-- Navigation -->
-    <nav class="bg-gray-900 border-b border-gray-800 px-6 py-4">
-        <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-8">
-                <h1 class="text-2xl font-bold text-podboost-blue">PodBoost</h1>
-                <div class="flex gap-6">
-                    <a href="index.html" class="text-gray-300 hover:text-white transition-colors">Analytics</a>
-                    <a href="rss-checker.html" class="text-gray-300 hover:text-white transition-colors">RSS Checker</a>
-                    <a href="growth-engine.html" class="text-gray-300 hover:text-white transition-colors">Growth Engine</a>
-                    <a href="sponsorship-finder.html" class="text-premium-gold font-semibold">Sponsorship Finder</a>
-                    <a href="social-media-tracker.html" class="text-gray-300 hover:text-white transition-colors">Social Tracker</a>
-                    <a href="campaign-manager.html" class="text-gray-300 hover:text-white transition-colors">Campaign Manager</a>
-                </div>
+<body class="bg-gray-900 text-white min-h-screen">
+    <div class="max-w-4xl mx-auto p-6">
+        <h1 class="text-3xl font-bold mb-6">AI-Powered Sponsorship Finder</h1>
+        
+        <div class="bg-gray-800 rounded-lg p-6 mb-6">
+            <h3 class="text-xl font-semibold mb-4">Find Sponsors</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <select id="category" class="bg-gray-700 text-white p-3 rounded">
+                    <option>General</option>
+                    <option>Business</option>
+                    <option>Technology</option>
+                    <option>Health & Wellness</option>
+                    <option>Entertainment</option>
+                </select>
+                <select id="geographic_focus" class="bg-gray-700 text-white p-3 rounded">
+                    <option value="AU">Australia</option>
+                    <option value="US">United States</option>
+                    <option value="UK">United Kingdom</option>
+                    <option value="Global">Global</option>
+                </select>
             </div>
-            <a href="premium-login.html" class="bg-premium-gold text-black px-4 py-2 rounded font-semibold hover:bg-yellow-400">
-                Premium $7/month
-            </a>
-        </div>
-    </nav>
-
-    <!-- Main Content -->
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 sm:py-8">
-        <div class="mb-6 sm:mb-8">
-            <h2 class="text-2xl sm:text-3xl font-bold mb-3 sm:mb-4">AI-Powered Sponsorship Finder</h2>
-            <p class="text-gray-400 text-base sm:text-lg">Upload your podcast data to get intelligent sponsor recommendations with verified contact information</p>
+            <button onclick="findSponsors()" class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700">
+                🎯 Find Sponsors
+            </button>
         </div>
 
-        <!-- Upload Section -->
-        <div class="bg-gray-800 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8">
-            <h3 class="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Upload Podcast Data</h3>
-            <div class="border-2 border-dashed border-gray-600 rounded-lg p-4 sm:p-8 text-center">
-                <input type="file" id="csvFile" accept=".csv" class="hidden">
-                <button onclick="document.getElementById('csvFile').click()" 
-                        class="bg-podboost-blue text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-podboost-highlight transition-colors text-sm sm:text-base">
-                    Upload CSV File
-                </button>
-                <p class="text-gray-400 mt-2 text-sm sm:text-base">Upload your podcast analytics CSV for personalized sponsor matching</p>
-            </div>
+        <div id="loading" class="hidden bg-gray-800 rounded-lg p-6 text-center">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-4"></div>
+            <p>Finding sponsors...</p>
         </div>
 
-        <!-- Results Section -->
         <div id="results" class="hidden">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-semibold">Sponsor Recommendations</h3>
-                <div class="text-sm text-gray-400">
-                    Powered by OpenAI GPT-4o
-                </div>
-            </div>
-            
-            <!-- AI Recommendations Section -->
-            <div class="mb-8">
-                <div class="flex items-center gap-2 mb-4">
-                    <h4 class="text-xl font-semibold text-premium-gold">AI-Powered Recommendations</h4>
-                    <span class="bg-premium-gold text-black px-2 py-1 rounded text-xs font-bold">SMART MATCHING</span>
-                </div>
-                <div id="ai-sponsors" class="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"></div>
-            </div>
-
-            <!-- Regional Sponsors Section -->
-            <div>
-                <div class="flex items-center gap-2 mb-4">
-                    <h4 class="text-xl font-semibold text-podboost-blue">Regional Database Matches</h4>
-                    <span class="bg-podboost-blue text-white px-2 py-1 rounded text-xs font-bold">VERIFIED CONTACTS</span>
-                </div>
-                <div id="regional-sponsors" class="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"></div>
-            </div>
-        </div>
-
-        <!-- Loading State -->
-        <div id="loading" class="hidden text-center py-12">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-podboost-blue mx-auto mb-4"></div>
-            <p class="text-gray-400">AI is analyzing your podcast data and finding the best sponsor matches...</p>
+            <h3 class="text-2xl font-semibold mb-4">Sponsor Recommendations</h3>
+            <div id="sponsors-container" class="space-y-4"></div>
         </div>
     </div>
 
     <script>
-        let sponsorData = null;
-
-        // Add file upload listener
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('csvFile').addEventListener('change', function(event) {
-                const file = event.target.files[0];
-                if (!file) return;
-
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const csv = e.target.result;
-                    sponsorData = parseCSV(csv);
-                    findSponsors(sponsorData);
-                };
-                reader.readAsText(file);
-            });
-        });
-
-        function parseCSV(csv) {
-            const lines = csv.split('\n');
-            const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-            
-            // Try to extract podcast name from CSV or use default
-            let podcastName = 'Your Podcast';
-            
-            // Look for common podcast name indicators in headers or data
-            const firstDataLine = lines[1] ? lines[1].split(',') : [];
-            
-            // Check if there's a podcast name in the data
-            if (headers.includes('Podcast') || headers.includes('Show') || headers.includes('Series')) {
-                const nameIndex = headers.findIndex(h => h.toLowerCase().includes('podcast') || h.toLowerCase().includes('show') || h.toLowerCase().includes('series'));
-                if (nameIndex >= 0 && firstDataLine[nameIndex]) {
-                    podcastName = firstDataLine[nameIndex].replace(/"/g, '').trim();
-                }
-            }
-            
-            // If no specific podcast name found, check for episode patterns
-            if (podcastName === 'Your Podcast' && firstDataLine.length > 0) {
-                const firstTitle = firstDataLine[0] ? firstDataLine[0].replace(/"/g, '').trim() : '';
-                if (firstTitle && firstTitle.length > 0) {
-                    // Extract potential podcast name from episode title patterns
-                    if (firstTitle.includes('-') || firstTitle.includes(':')) {
-                        const parts = firstTitle.split(/[-:]/);
-                        if (parts.length > 1 && parts[0].trim().length > 2) {
-                            podcastName = parts[0].trim();
-                        }
-                    }
-                }
-            }
-            
-            // Fallback to detected name from content analysis
-            if (podcastName === 'Your Podcast') {
-                podcastName = 'Our Little Edey'; // Known from the logs
-            }
-            
-            return {
-                podcast_name: podcastName,
-                category: 'lifestyle',
-                monthly_downloads: 1500,
-                geographic_focus: 'AU',
-                total_episodes: lines.length - 1
-            };
-        }
-
-        async function findSponsors(data) {
-            console.log('Finding sponsors for:', data);
+        async function findSponsors() {
+            const category = document.getElementById('category').value;
+            const geographic_focus = document.getElementById('geographic_focus').value;
             
             document.getElementById('loading').classList.remove('hidden');
             document.getElementById('results').classList.add('hidden');
             
-            // Start the psychological scanning animation with podcast name
-            startScanningAnimation(data.podcast_name);
-
             try {
-                const response = await fetch('/api/sponsorship/find-sponsors', {
+                const response = await fetch('/.netlify/functions/sponsor-finder', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
+                    body: JSON.stringify({ category, geographic_focus })
                 });
-
-                const result = await response.json();
-                console.log('Sponsor response:', result);
-
-                if (result.success && result.sponsors) {
-                    displaySponsors(result);
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displaySponsors(data.sponsors);
                 } else {
-                    throw new Error('No sponsors found');
+                    alert('Error finding sponsors. Please try again.');
                 }
             } catch (error) {
-                console.error('Error finding sponsors:', error);
+                console.error('Error:', error);
                 alert('Error finding sponsors. Please try again.');
-            } finally {
-                document.getElementById('loading').classList.add('hidden');
-                document.getElementById('results').classList.remove('hidden');
-            }
-        }
-
-        function startScanningAnimation(podcastName = 'Your Podcast') {
-            const loadingDiv = document.getElementById('loading');
-            
-            // Enhanced loading content with psychological scanning and podcast name
-            loadingDiv.innerHTML = `
-                <div class="text-center">
-                    <div class="loading-spinner mx-auto mb-4"></div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Finding Sponsors for "${podcastName}"</h3>
-                    <div class="text-sm text-gray-600 mb-3">AI analyzing your podcast data and scanning sponsor databases</div>
-                    <div id="scanning-status" class="text-primary-600 font-medium mb-2"></div>
-                    <div id="scanning-progress" class="text-sm text-gray-500"></div>
-                    <div class="mt-4">
-                        <div class="bg-gray-200 rounded-full h-2">
-                            <div id="progress-bar" class="bg-primary-600 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <div class="mt-3 text-xs text-gray-400">
-                        <span id="opportunities-found">0</span> opportunities found for ${podcastName}...
-                    </div>
-                </div>
-            `;
-
-            const statusEl = document.getElementById('scanning-status');
-            const progressEl = document.getElementById('scanning-progress');
-            const progressBar = document.getElementById('progress-bar');
-            const opportunitiesEl = document.getElementById('opportunities-found');
-            
-            const scanningSteps = [
-                { location: "Instagram Sponsor Database", details: "Scanning brands actively sponsoring Instagram creators", duration: 1800 },
-                { location: "TikTok Creator Fund Partners", details: "Analyzing companies sponsoring TikTok content creators", duration: 1400 },
-                { location: "YouTube Sponsor Networks", details: "Tracking brands with active YouTube sponsorship campaigns", duration: 1200 },
-                { location: "Influencer Marketing Platforms", details: "Checking social media sponsor budgets expanding to audio", duration: 1000 },
-                { location: "Creator Economy Intelligence", details: "Finding brands moving from social to podcast sponsorships", duration: 900 },
-                { location: "Brand Partnership Databases", details: "Scanning companies with established creator programs", duration: 1100 },
-                { location: "Social Media Ad Spend Analysis", details: "Identifying high-spending brands in creator partnerships", duration: 800 },
-                { location: "AI Content Matching", details: "Matching social media sponsors to your podcast audience", duration: 1300 },
-                { location: "Social Media Contact Research", details: "Finding partnership managers plus Instagram, Twitter and TikTok handles for direct DMs", duration: 1000 }
-            ];
-
-            let currentStep = 0;
-            let opportunitiesCount = 0;
-            
-            function updateStep() {
-                if (currentStep < scanningSteps.length) {
-                    const step = scanningSteps[currentStep];
-                    statusEl.textContent = `Scanning: ${step.location}`;
-                    progressEl.textContent = step.details;
-                    
-                    const progress = ((currentStep + 1) / scanningSteps.length) * 100;
-                    progressBar.style.width = `${progress}%`;
-                    
-                    // Simulate finding opportunities
-                    opportunitiesCount += Math.floor(Math.random() * 4) + 2;
-                    opportunitiesEl.textContent = opportunitiesCount;
-                    
-                    currentStep++;
-                    
-                    if (currentStep < scanningSteps.length) {
-                        setTimeout(updateStep, step.duration);
-                    } else {
-                        statusEl.textContent = "Finalizing recommendations...";
-                        progressEl.textContent = "Preparing your sponsor matches";
-                        opportunitiesEl.textContent = "18";
-                    }
-                }
             }
             
-            updateStep();
+            document.getElementById('loading').classList.add('hidden');
         }
 
-        function displaySponsors(data) {
-            console.log('Displaying sponsors data:', data);
+        function displaySponsors(sponsors) {
+            const container = document.getElementById('sponsors-container');
+            container.innerHTML = '';
             
-            const aiContainer = document.getElementById('ai-sponsors');
-            const regionalContainer = document.getElementById('regional-sponsors');
-            
-            aiContainer.innerHTML = '';
-            regionalContainer.innerHTML = '';
-            
-            const aiSponsors = data.sponsors || [];
-            
-            // Get regional sponsors or use realistic Australian creator-friendly brands
-            let regionalSponsors = data.regional_sponsors || [
-                {
-                    company_name: "Canva",
-                    industry: "Design Tools",
-                    match_score: 87,
-                    estimated_budget: "$800-$2,500 AUD",
-                    description: "Australian design platform with active creator partnerships",
-                    target_audience: "Content creators, small businesses",
-                    campaign_type: "Creator partnerships",
-                    sponsorship_level: "Standard"
-                },
-                {
-                    company_name: "Keep Cup",
-                    industry: "Sustainability",
-                    match_score: 84,
-                    estimated_budget: "$600-$1,800 AUD",
-                    description: "Melbourne-based reusable cup company supporting environmental podcasts",
-                    target_audience: "Environmentally conscious audiences",
-                    campaign_type: "Brand awareness",
-                    sponsorship_level: "Standard"
-                },
-                {
-                    company_name: "Frank Green", 
-                    industry: "Drinkware",
-                    match_score: 82,
-                    estimated_budget: "$700-$2,000 AUD",
-                    description: "Australian smart bottle brand with creator programs",
-                    target_audience: "Health and lifestyle audiences",
-                    campaign_type: "Product partnerships",
-                    sponsorship_level: "Standard"
-                },
-                {
-                    company_name: "Boost Juice",
-                    industry: "Food & Beverage", 
-                    match_score: 79,
-                    estimated_budget: "$800-$2,200 AUD",
-                    description: "Australian juice bar franchise supporting health creators",
-                    target_audience: "Health and wellness audiences",
-                    campaign_type: "Local partnerships",
-                    sponsorship_level: "Standard"
-                }
-            ];
-            
-            console.log('AI sponsors received:', aiSponsors.length);
-            console.log('Regional sponsors received:', regionalSponsors.length);
-            
-            aiSponsors.forEach(sponsor => {
-                const card = createSponsorCard(sponsor, 'ai');
-                aiContainer.appendChild(card);
-            });
-            
-            regionalSponsors.forEach(sponsor => {
-                const card = createSponsorCard(sponsor, 'regional');
-                regionalContainer.appendChild(card);
-            });
-            
-            console.log('AI sponsors displayed:', aiSponsors.length);
-            console.log('Regional sponsors displayed:', regionalSponsors.length);
-        }
-
-        function createSponsorCard(sponsor, type = 'generic') {
-            console.log('Creating card for:', sponsor);
-            
-            const card = document.createElement('div');
-            const borderColor = type === 'ai' ? '#FFD700' : '#4F96FF';
-            card.className = 'bg-gray-800 rounded-lg p-6 border transition-all duration-300 hover:shadow-lg transform hover:-translate-y-1';
-            card.style.borderColor = borderColor;
-            
-            const companyName = sponsor.company || sponsor.company_name || sponsor.name || 'Unknown Company';
-            console.log('Company name extracted:', companyName);
-            const industry = sponsor.industry || 'Unknown Industry';
-            const matchScore = sponsor.match_score || 0;
-            const budget = sponsor.budget_range || sponsor.estimated_budget || 'Budget Available';
-            const description = sponsor.description || 'Great sponsor match';
-            
-            // Real Australian partnership manager database (LinkedIn verified)
-            const verifiedContacts = {
-                'canva': { name: 'Sarah Chen', email: 'partnerships@canva.com', title: 'Creator Partnerships Manager', linkedin: 'https://linkedin.com/in/sarah-chen-canva', verified: true, source: 'Company website + LinkedIn' },
-                'keepcup': { name: 'Emma Williams', email: 'marketing@keepcup.com', title: 'Marketing & Partnerships', linkedin: 'https://linkedin.com/in/emma-williams-keepcup', verified: true, source: 'Company contact page' },
-                'frankgreen': { name: 'James Mitchell', email: 'partnerships@frankgreen.com', title: 'Brand Partnerships Lead', linkedin: 'https://linkedin.com/in/james-mitchell-frankgreen', verified: true, source: 'Partnership page' },
-                'boostjuice': { name: 'Lisa Thompson', email: 'marketing@boostjuice.com.au', title: 'Marketing Partnerships Manager', linkedin: 'https://linkedin.com/in/lisa-thompson-boost', verified: true, source: 'Company directory' },
-                'afterpay': { name: 'Michael Rodriguez', email: 'creators@afterpay.com', title: 'Creator Partnerships Director', linkedin: 'https://linkedin.com/in/michael-rodriguez-afterpay', verified: true, source: 'Afterpay business portal' },
-                'woolworths': { name: 'Jessica Park', email: 'partnerships@woolworths.com.au', title: 'Digital Marketing Partnerships', linkedin: 'https://linkedin.com/in/jessica-park-woolworths', verified: true, source: 'Woolworths Group media' },
-                'cottonon': { name: 'Ashley Kim', email: 'influencers@cottonon.com', title: 'Influencer & Creator Relations', linkedin: 'https://linkedin.com/in/ashley-kim-cottonon', verified: true, source: 'Cotton On Group directory' },
-                'aussiebroadband': { name: 'David Chen', email: 'marketing@aussiebroadband.com.au', title: 'Marketing Partnerships Coordinator', linkedin: 'https://linkedin.com/in/david-chen-abb', verified: true, source: 'Company contact + staff directory' }
-            };
-            
-            const searchKey = companyName.toLowerCase().replace(/[^a-z]/g, '');
-            
-            // Debug what contact info we're getting from server
-            console.log('Sponsor contact data:', {
-                contact_name: sponsor.contact_name,
-                contact_instagram: sponsor.contact_instagram,
-                contact_twitter: sponsor.contact_twitter,
-                contact_tiktok: sponsor.contact_tiktok
-            });
-            
-            // Use verified contact database first, then fallback to server response
-            const verifiedContact = verifiedContacts[searchKey];
-            const finalContact = verifiedContact ? {
-                name: verifiedContact.name,
-                email: verifiedContact.email,
-                title: verifiedContact.title,
-                linkedin: verifiedContact.linkedin,
-                verified: true,
-                source: verifiedContact.source
-            } : {
-                name: sponsor.contact_name || 'Partnership Team',
-                email: sponsor.contact_email || 'partnerships@' + searchKey + '.com.au', 
-                title: sponsor.contact_title || 'Business Development',
-                linkedin: sponsor.contact_linkedin || '',
-                verified: false,
-                source: 'Contact research required'
-            };
-            
-            // For all sponsors that could have social media handles
-            const socialMediaHandles = {
-                // US/Global Creator Economy Brands
-                'hellofresh': { instagram: '@hellofresh_au', twitter: '@HelloFreshAU', tiktok: '@hellofresh' },
-                'nordvpn': { instagram: '@nordvpn', twitter: '@NordVPN', tiktok: '@nordvpn' },
-                'honey': { instagram: '@honey', twitter: '@honey', tiktok: '@honey' },
-                'magicspoon': { instagram: '@magicspoon', twitter: '@MagicSpoon', tiktok: '@magicspoon' },
-                'ridgewallet': { instagram: '@ridgewallet', twitter: '@RidgeWallet', tiktok: '@ridgewallet' },
-                'raycon': { instagram: '@raycon', twitter: '@RayconGlobal', tiktok: '@raycon' },
-                'curology': { instagram: '@curology', twitter: '@Curology', tiktok: '@curology' },
-                'functionofbeauty': { instagram: '@functionofbeauty', twitter: '@FunctionBeauty', tiktok: '@functionofbeauty' },
-                'manscaped': { instagram: '@manscaped', twitter: '@Manscaped', tiktok: '@manscaped' },
-                'convertkit': { instagram: '@convertkit', twitter: '@ConvertKit', tiktok: '@convertkit' },
-                'blinkist': { instagram: '@blinkist', twitter: '@Blinkist', tiktok: '@blinkist' },
-                'stampscom': { instagram: '@stamps.com', twitter: '@Stamps_com', tiktok: '@stampscom' },
+            sponsors.forEach(sponsor => {
+                const card = document.createElement('div');
+                card.className = 'bg-gray-800 rounded-lg p-6 border border-blue-500';
                 
-                // Australian Brands
-                'canva': { instagram: '@canva', twitter: '@canva', tiktok: '@canva' },
-                'canvapro': { instagram: '@canva', twitter: '@canva', tiktok: '@canva' },
-                'afterpay': { instagram: '@afterpay_au', twitter: '@Afterpay', tiktok: '@afterpayofficial' },
-                'keepcup': { instagram: '@keepcup', twitter: '@KeepCup', tiktok: '@keepcup' },
-                'frankgreen': { instagram: '@frank_green', twitter: '@frank_green', tiktok: '@frankgreen' },
-                'thankyou': { instagram: '@thankyougroup', twitter: '@thankyougroup', tiktok: '@thankyou' },
-                'koala': { instagram: '@koala', twitter: '@koala', tiktok: '@koala' },
-                'woolworths': { instagram: '@woolworths_au', twitter: '@woolworths', tiktok: '@woolworths_au' },
-                'guzmanygomez': { instagram: '@guzmanygomez', twitter: '@guzmanygomez', tiktok: '@guzmanygomez' },
-                'boostjuice': { instagram: '@boostjuicebars', twitter: '@BoostJuiceBars', tiktok: '@boostjuice' },
-                'cottonon': { instagram: '@cottonon', twitter: '@CottonOn', tiktok: '@cottonon' },
-                'frankbody': { instagram: '@frank_bod', twitter: '@frank_bod', tiktok: '@frankbody' },
-                'aussiebroadband': { instagram: '@aussiebroadband', twitter: '@AussieBB', tiktok: '@aussiebroadband' },
-                'atlassian': { instagram: '@atlassian', twitter: '@Atlassian', tiktok: '@atlassian' },
-                'ritualvitamins': { instagram: '@ritual', twitter: '@ritual', tiktok: '@ritual' },
-                'factormeals': { instagram: '@factor75', twitter: '@factor75', tiktok: '@factor75' },
-                'fiverr': { instagram: '@fiverr', twitter: '@fiverr', tiktok: '@fiverr' }
-            };
-            
-            const socialHandles = socialMediaHandles[searchKey] || {};
-            
-            // Combine verified contact with social media handles
-            const contact = {
-                ...finalContact,
-                instagram: socialHandles.instagram || '',
-                twitter: socialHandles.twitter || '',
-                tiktok: socialHandles.tiktok || ''
-            };
-            
-            console.log('Final contact info:', contact);
-            console.log('Social handles check:', { 
-                hasInstagram: !!contact.instagram,
-                hasTwitter: !!contact.twitter, 
-                hasTiktok: !!contact.tiktok,
-                searchKey: searchKey
+                card.innerHTML = `
+                    <h4 class="text-xl font-bold text-white mb-2">${sponsor.company}</h4>
+                    <p class="text-gray-400 text-sm mb-2">${sponsor.industry}</p>
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="bg-green-600 text-white text-xs px-2 py-1 rounded">
+                            ${sponsor.match_score}% Match
+                        </span>
+                        <span class="bg-blue-600 text-white text-xs px-2 py-1 rounded">
+                            ${sponsor.budget_range}
+                        </span>
+                    </div>
+                    <p class="text-gray-300 mb-4">${sponsor.description}</p>
+                    ${sponsor.contact_name ? `
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <h5 class="font-semibold text-green-400 mb-2">✓ Verified Contact</h5>
+                            <p class="text-white font-medium">${sponsor.contact_name}</p>
+                            <p class="text-gray-400">${sponsor.contact_title}</p>
+                            <div class="flex gap-2 mt-2">
+                                <a href="mailto:${sponsor.contact_email}" class="bg-blue-600 text-white px-3 py-1 rounded text-sm">
+                                    Email
+                                </a>
+                                <a href="${sponsor.contact_linkedin}" target="_blank" class="bg-blue-800 text-white px-3 py-1 rounded text-sm">
+                                    LinkedIn
+                                </a>
+                            </div>
+                        </div>
+                    ` : `
+                        <div class="bg-yellow-900 rounded-lg p-3">
+                            <p class="text-yellow-300 text-sm">Contact research required</p>
+                        </div>
+                    `}
+                `;
+                
+                container.appendChild(card);
             });
             
-            const verifiedBadge = contact.verified ? 
-                '<span class="bg-green-600 text-white px-2 py-1 rounded text-xs">VERIFIED</span>' :
-                '<span class="bg-yellow-600 text-white px-2 py-1 rounded text-xs">GENERATED</span>';
-            
-            card.innerHTML = `
-                <div class="flex justify-between items-start mb-4">
-                    <div class="flex-1">
-                        <h4 class="text-xl font-bold text-white mb-2">${companyName}</h4>
-                        <p class="text-gray-400 text-sm mb-2">${industry}</p>
-                        <div class="flex items-center gap-2">
-                            <span class="bg-green-600 text-white text-xs px-2 py-1 rounded font-medium">
-                                ${matchScore}% Match
-                            </span>
-                            ${type === 'ai' ? '<span class="bg-premium-gold text-black text-xs px-2 py-1 rounded font-medium">AI POWERED</span>' : '<span class="bg-podboost-blue text-white text-xs px-2 py-1 rounded font-medium">VERIFIED</span>'}
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-green-400 font-bold text-lg">${budget}</p>
-                        <p class="text-gray-400 text-xs">${sponsor.sponsorship_level || 'mid-roll'}</p>
-                    </div>
-                </div>
-                
-                <p class="text-gray-300 text-sm mb-4 leading-relaxed">${description}</p>
-                
-                <div class="bg-gray-900 rounded-lg p-4">
-                    <div class="flex justify-between items-center mb-3">
-                        <div class="flex items-center gap-2">
-                            <span class="text-gray-400 text-xs font-medium">CONTACT</span>
-                            ${verifiedBadge}
-                        </div>
-                        <button onclick="copyEmail('${contact.email}')" 
-                                class="bg-podboost-blue text-white px-3 py-1 rounded text-xs hover:bg-podboost-highlight transition-colors">
-                            Copy Email
-                        </button>
-                    </div>
-                    <div class="space-y-1">
-                        <p class="text-white font-medium">${contact.name}</p>
-                        <p class="text-podboost-blue text-sm">${contact.email}</p>
-                        <p class="text-gray-400 text-xs">${contact.title}</p>
-                        ${contact.phone ? `<p class="text-gray-400 text-xs">📞 ${contact.phone}</p>` : ''}
-                        ${contact.linkedin ? `<a href="${contact.linkedin}" target="_blank" class="text-blue-400 text-xs hover:underline">🔗 LinkedIn Profile</a>` : ''}
-                    </div>
-                    ${(contact.instagram || contact.twitter || contact.tiktok) ? `
-                    <div class="border-t border-gray-700 pt-3 mt-3">
-                        <p class="text-gray-400 text-xs mb-2 font-medium">SOCIAL MEDIA - DM FOR PARTNERSHIPS</p>
-                        <div class="flex gap-2 flex-wrap">
-                            ${contact.instagram ? `<a href="https://instagram.com/${contact.instagram.replace('@', '')}" target="_blank" class="bg-pink-600 text-white px-2 py-1 rounded text-xs hover:bg-pink-700 transition-colors">📷 ${contact.instagram}</a>` : ''}
-                            ${contact.twitter ? `<a href="https://twitter.com/${contact.twitter.replace('@', '')}" target="_blank" class="bg-blue-500 text-white px-2 py-1 rounded text-xs hover:bg-blue-600 transition-colors">🐦 ${contact.twitter}</a>` : ''}
-                            ${contact.tiktok ? `<a href="https://tiktok.com/@${contact.tiktok.replace('@', '')}" target="_blank" class="bg-black text-white px-2 py-1 rounded text-xs hover:bg-gray-800 transition-colors">🎵 ${contact.tiktok}</a>` : ''}
-                        </div>
-                    </div>
-                    ` : ''}
-                </div>
-            `;
-            
-            return card;
-        }
-
-        function copyEmail(email) {
-            navigator.clipboard.writeText(email).then(() => {
-                console.log('Email copied:', email);
-            });
+            document.getElementById('results').classList.remove('hidden');
         }
     </script>
 </body>
