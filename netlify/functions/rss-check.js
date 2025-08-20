@@ -1,248 +1,200 @@
-const https = require('https');
-const http = require('http');
-const url = require('url');
-
+// Exact RSS checker implementation from working Replit server
 exports.handler = async (event, context) => {
-    const headers = {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Content-Type': 'application/json'
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Content-Type': 'application/json'
+  };
+
+  if (event.httpMethod === 'OPTIONS') {
+    return { statusCode: 200, headers, body: '' };
+  }
+
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      headers,
+      body: JSON.stringify({ error: 'Method not allowed' })
     };
+  }
 
-    if (event.httpMethod === 'OPTIONS') {
-        return { statusCode: 200, headers, body: '' };
+  try {
+    const { rss_url, feed_url } = JSON.parse(event.body);
+    const feedUrl = rss_url || feed_url;
+    
+    if (!feedUrl) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'RSS feed URL is required' })
+      };
     }
 
-    if (event.httpMethod !== 'POST') {
-        return {
-            statusCode: 405,
-            headers,
-            body: JSON.stringify({ error: 'Method not allowed' })
-        };
-    }
-
-    try {
-        const { rss_url, feed_url } = JSON.parse(event.body);
-        const feedUrl = rss_url || feed_url;
-        
-        if (!feedUrl) {
-            return {
-                statusCode: 400,
-                headers,
-                body: JSON.stringify({ error: 'RSS feed URL is required' })
-            };
+    console.log('Checking RSS feed:', feedUrl);
+    
+    // Parse the RSS feed - EXACT same logic as Replit
+    const feedData = await new Promise((resolve, reject) => {
+      const request = require('https').get(feedUrl, (response) => {
+        if (response.statusCode !== 200) {
+          return reject(new Error(`Failed to fetch RSS feed: HTTP ${response.statusCode}`));
         }
-
-        const feedData = await fetchWithRedirects(feedUrl, 5);
-        const rssData = parseBasicRSS(feedData);
-        const validation = validateBasicRSS(rssData);
-        const seoScore = calculateBasicSEO(rssData);
-
-        return {
-            statusCode: 200,
-            headers,
-            body: JSON.stringify({
-                podcast_metadata: rssData,
-                feed_validation: validation.errors || [],
-                optimization_suggestions: validation.suggestions || [],
-                seo_score: seoScore,
-                episode_count: rssData.episode_count || 0,
-                recent_episodes: rssData.recent_episodes || []
-            })
-        };
-
-    } catch (error) {
-        console.error('RSS check error:', error);
-        return {
-            statusCode: 500,
-            headers,
-            body: JSON.stringify({ 
-                error: 'Failed to analyze RSS feed',
-                details: error.message 
-            })
-        };
-    }
-};
-
-async function fetchWithRedirects(feedUrl, maxRedirects = 5) {
-    return new Promise((resolve, reject) => {
-        if (maxRedirects <= 0) {
-            reject(new Error('Too many redirects'));
-            return;
-        }
-
-        const urlObj = new URL(feedUrl);
-        const options = {
-            hostname: urlObj.hostname,
-            port: urlObj.port,
-            path: urlObj.pathname + urlObj.search,
-            method: 'GET',
-            headers: {
-                'User-Agent': 'PodBoost RSS Checker 1.0'
-            }
-        };
-
-        const client = urlObj.protocol === 'https:' ? https : http;
         
-        const req = client.request(options, (res) => {
-            if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-                const redirectUrl = url.resolve(feedUrl, res.headers.location);
-                fetchWithRedirects(redirectUrl, maxRedirects - 1).then(resolve).catch(reject);
-                return;
-            }
-
-            if (res.statusCode !== 200) {
-                reject(new Error(`HTTP ${res.statusCode}: ${res.statusMessage}`));
-                return;
-            }
-
-            let data = '';
-            res.setEncoding('utf8');
-            res.on('data', chunk => data += chunk);
-            res.on('end', () => resolve(data));
-        });
-
-        req.on('error', reject);
-        req.setTimeout(15000, () => {
-            req.destroy();
-            reject(new Error('Request timeout'));
+        const feedparser = require('feedparser');
+        const fp = new feedparser();
+        let feedInfo = null;
+        const episodes = [];
+        
+        response.pipe(fp);
+        
+        fp.on('error', reject);
+        
+        fp.on('meta', function(meta) {
+          feedInfo = meta;
         });
         
-        req.end();
+        fp.on('readable', function() {
+          let item;
+          while (item = this.read()) {
+            episodes.push(item);
+          }
+        });
+        
+        fp.on('end', function() {
+          resolve({ feedInfo, episodes });
+        });
+      });
+      
+      request.on('error', reject);
+      request.setTimeout(10000, () => {
+        request.abort();
+        reject(new Error('Request timeout'));
+      });
     });
-}
-
-function parseBasicRSS(rssText) {
-    // Clean up common RSS parsing issues
-    const cleanRss = rssText.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
     
-    // Extract basic metadata
-    const extractContent = (pattern) => {
-        const match = cleanRss.match(pattern);
-        if (match) {
-            const content = match[1] || match[2] || '';
-            return content.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').replace(/<[^>]*>/g, '').trim();
+    if (!feedData.feedInfo) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ error: 'Unable to parse RSS feed' })
+      };
+    }
+
+    const { feedInfo, episodes } = feedData;
+
+    // Extract owner information properly from feedparser structure - EXACT same logic
+    let owner_name = '';
+    let owner_email = '';
+    
+    // Function to extract text from feedparser's complex object structure
+    const extractText = (value) => {
+      if (typeof value === 'string') return value;
+      if (typeof value === 'object' && value !== null) {
+        // Handle feedparser's {'@': {}, '#': 'actual_value'} structure
+        if (value['#']) return String(value['#']);
+        if (value.text) return String(value.text);
+        if (value._) return String(value._);
+        // Handle deeply nested structure by recursively checking
+        for (const key in value) {
+          if (key !== '@' && typeof value[key] === 'object' && value[key]['#']) {
+            return String(value[key]['#']);
+          }
         }
-        return '';
+        // Last resort: parse JSON to extract the # value
+        try {
+          const str = JSON.stringify(value);
+          const match = str.match(/"#":"([^"]+)"/);
+          if (match) return match[1];
+        } catch (e) {
+          // Silent fail for JSON parsing issues
+        }
+      }
+      return '';
     };
-
-    const title = extractContent(/<title[^>]*><!\[CDATA\[(.*?)\]\]><\/title>|<title[^>]*>(.*?)<\/title>/i);
-    const description = extractContent(/<description[^>]*><!\[CDATA\[(.*?)\]\]><\/description>|<description[^>]*>(.*?)<\/description>/i);
-    const author = extractContent(/<itunes:author[^>]*>(.*?)<\/itunes:author>/i);
-    const language = extractContent(/<language[^>]*>(.*?)<\/language>/i);
     
-    // Extract image
-    let image = '';
-    const imageMatch = cleanRss.match(/<itunes:image[^>]*href=["']([^"']*)/i) || 
-                      cleanRss.match(/<image[^>]*>.*?<url[^>]*>(.*?)<\/url>/si);
-    if (imageMatch) {
-        image = imageMatch[1];
+    // Extract from the nested itunes:owner structure based on feedparser format
+    const owner = feedInfo['itunes:owner'];
+    if (owner && typeof owner === 'object') {
+      // Access nested itunes:name and itunes:email within the owner object
+      if (owner['itunes:name']) {
+        owner_name = extractText(owner['itunes:name']);
+      }
+      if (owner['itunes:email']) {
+        owner_email = extractText(owner['itunes:email']);
+      }
     }
 
-    // Extract categories
-    const categoryMatches = cleanRss.match(/<itunes:category[^>]*text=["']([^"']*)/gi) || [];
-    const categories = categoryMatches.map(cat => {
-        const match = cat.match(/text=["']([^"']*)/i);
-        return match ? match[1] : '';
-    }).filter(Boolean);
-
-    // Extract episodes
-    const episodes = [];
-    const itemPattern = /<item[^>]*>([\s\S]*?)<\/item>/gi;
-    let itemMatch;
-    let count = 0;
+    // Basic feed validation
+    const validation_errors = [];
+    const optimization_suggestions = [];
     
-    while ((itemMatch = itemPattern.exec(cleanRss)) && count < 10) {
-        const itemContent = itemMatch[1];
-        const epTitle = extractItemContent(itemContent, /<title[^>]*><!\[CDATA\[(.*?)\]\]><\/title>|<title[^>]*>(.*?)<\/title>/i);
-        const epDesc = extractItemContent(itemContent, /<description[^>]*><!\[CDATA\[(.*?)\]\]><\/description>|<description[^>]*>(.*?)<\/description>/i);
-        const epDuration = extractItemContent(itemContent, /<itunes:duration[^>]*>(.*?)<\/itunes:duration>/i);
-        const epDate = extractItemContent(itemContent, /<pubDate[^>]*>(.*?)<\/pubDate>/i);
-        
-        if (epTitle) {
-            episodes.push({
-                title: epTitle,
-                description: epDesc.substring(0, 200),
-                duration: epDuration,
-                publish_date: epDate
-            });
-            count++;
-        }
+    if (!feedInfo.title) {
+      validation_errors.push({
+        field: 'title',
+        severity: 'error',
+        message: 'Missing podcast title'
+      });
     }
+    
+    if (!feedInfo.description || feedInfo.description.length < 50) {
+      optimization_suggestions.push({
+        field: 'description',
+        severity: 'warning', 
+        message: 'Add a detailed description for better discoverability'
+      });
+    }
+
+    // Calculate basic SEO score
+    let seo_score = 0;
+    if (feedInfo.title) seo_score += 25;
+    if (feedInfo.description && feedInfo.description.length >= 100) seo_score += 25;
+    if (feedInfo.image && feedInfo.image.url) seo_score += 20;
+    if (owner_name) seo_score += 15;
+    if (episodes.length >= 3) seo_score += 15;
+
+    // Prepare response matching Replit format
+    const response_data = {
+      podcast_metadata: {
+        title: feedInfo.title || 'Unknown',
+        description: feedInfo.description || '',
+        author: feedInfo.author || owner_name || '',
+        owner_name: owner_name,
+        owner_email: owner_email,
+        language: feedInfo.language || 'en',
+        categories: feedInfo.categories || [],
+        image_url: feedInfo.image?.url || '',
+        episode_count: episodes.length,
+        latest_episode: episodes[0]?.title || 'None',
+        publish_frequency: 'Unknown',
+        average_duration: 'Unknown'
+      },
+      feed_validation: validation_errors,
+      optimization_suggestions: optimization_suggestions,
+      seo_score: Math.min(100, seo_score),
+      episode_count: episodes.length,
+      recent_episodes: episodes.slice(0, 5).map(ep => ({
+        title: ep.title || 'Untitled',
+        description: ep.description ? ep.description.substring(0, 200) + '...' : '',
+        publish_date: ep.pubdate || '',
+        duration: ep.duration || 'Unknown'
+      }))
+    };
 
     return {
-        title: title || 'Unknown Podcast',
-        description: description,
-        author: author,
-        language: language || 'en',
-        image: image,
-        categories: categories,
-        episode_count: episodes.length,
-        recent_episodes: episodes
+      statusCode: 200,
+      headers,
+      body: JSON.stringify(response_data)
     };
-}
-
-function extractItemContent(itemContent, pattern) {
-    const match = itemContent.match(pattern);
-    if (match) {
-        const content = match[1] || match[2] || '';
-        return content.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1').replace(/<[^>]*>/g, '').trim();
-    }
-    return '';
-}
-
-function validateBasicRSS(rssData) {
-    const errors = [];
-    const suggestions = [];
     
-    if (!rssData.title || rssData.title === 'Unknown Podcast') {
-        errors.push({
-            field: 'title',
-            severity: 'error',
-            message: 'Missing podcast title',
-            recommendation: 'Add a clear, descriptive title to your podcast'
-        });
-    }
-    
-    if (!rssData.description || rssData.description.length < 50) {
-        suggestions.push({
-            field: 'description',
-            severity: 'warning',
-            message: 'Description is missing or too short',
-            recommendation: 'Add a detailed description (150+ characters) for better discoverability'
-        });
-    }
-    
-    if (!rssData.image) {
-        errors.push({
-            field: 'image',
-            severity: 'error',
-            message: 'Missing podcast artwork',
-            recommendation: 'Add high-quality artwork (1400x1400px minimum)'
-        });
-    }
-    
-    if (!rssData.categories || rssData.categories.length === 0) {
-        suggestions.push({
-            field: 'categories',
-            severity: 'warning',
-            message: 'No categories specified',
-            recommendation: 'Add relevant iTunes categories to improve discoverability'
-        });
-    }
-    
-    return { errors, suggestions };
-}
-
-function calculateBasicSEO(rssData) {
-    let score = 0;
-    if (rssData.title && rssData.title !== 'Unknown Podcast') score += 25;
-    if (rssData.description && rssData.description.length >= 100) score += 25;
-    if (rssData.image) score += 20;
-    if (rssData.categories && rssData.categories.length > 0) score += 15;
-    if (rssData.author) score += 10;
-    if (rssData.episode_count >= 3) score += 5;
-    
-    return Math.min(100, score);
-}
+  } catch (error) {
+    console.error('RSS check error:', error);
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({ 
+        error: 'RSS check failed',
+        message: error.message 
+      })
+    };
+  }
+};
