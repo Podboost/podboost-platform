@@ -1,3 +1,4 @@
+// RSS Growth Analysis with proper SSL handling
 const https = require('https');
 const http = require('http');
 const url = require('url');
@@ -34,17 +35,18 @@ exports.handler = async (event, context) => {
             };
         }
 
-        const feedData = await fetchAndParseRSS(feedUrl);
-        const growthAnalysis = generateGrowthAnalysis(feedData);
+        const feedData = await fetchRSSFeed(feedUrl);
+        const rssData = parseRSSForGrowth(feedData);
+        const growthAnalysis = generateGrowthAnalysis(rssData);
 
         return {
             statusCode: 200,
             headers,
             body: JSON.stringify({
                 podcast_metadata: {
-                    title: feedData.title,
-                    episode_count: feedData.episode_count,
-                    latest_episode: feedData.latest_episode
+                    title: rssData.title,
+                    episode_count: rssData.episode_count,
+                    latest_episode: rssData.latest_episode
                 },
                 growth_score: growthAnalysis.score,
                 summary: growthAnalysis.summary,
@@ -68,56 +70,67 @@ exports.handler = async (event, context) => {
     }
 };
 
-async function fetchAndParseRSS(feedUrl) {
+async function fetchRSSFeed(feedUrl) {
     return new Promise((resolve, reject) => {
-        const urlObj = new URL(feedUrl);
-        const client = urlObj.protocol === 'https:' ? https : http;
+        const parsedUrl = new URL(feedUrl);
+        const isHttps = parsedUrl.protocol === 'https:';
+        const client = isHttps ? https : http;
         
         const options = {
-            hostname: urlObj.hostname,
-            port: urlObj.port,
-            path: urlObj.pathname + urlObj.search,
+            hostname: parsedUrl.hostname,
+            port: parsedUrl.port || (isHttps ? 443 : 80),
+            path: parsedUrl.pathname + parsedUrl.search,
             method: 'GET',
             headers: {
-                'User-Agent': 'PodBoost Growth Engine 1.0'
+                'User-Agent': 'PodBoost Growth Engine 1.0',
+                'Accept': 'application/rss+xml, application/xml, text/xml'
             }
         };
 
-        const req = client.request(options, (res) => {
-            if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-                const redirectUrl = url.resolve(feedUrl, res.headers.location);
-                return fetchAndParseRSS(redirectUrl).then(resolve).catch(reject);
+        // Configure SSL options to be more permissive
+        if (isHttps) {
+            options.rejectUnauthorized = false;
+            options.secureProtocol = 'TLSv1_2_method';
+        }
+
+        const request = client.request(options, (response) => {
+            // Handle redirects
+            if (response.statusCode >= 300 && response.statusCode < 400 && response.headers.location) {
+                const redirectUrl = url.resolve(feedUrl, response.headers.location);
+                return fetchRSSFeed(redirectUrl).then(resolve).catch(reject);
             }
 
-            if (res.statusCode !== 200) {
-                reject(new Error(`HTTP ${res.statusCode}: ${res.statusMessage}`));
+            if (response.statusCode !== 200) {
+                reject(new Error(`HTTP ${response.statusCode}: ${response.statusMessage}`));
                 return;
             }
 
             let data = '';
-            res.setEncoding('utf8');
-            res.on('data', chunk => data += chunk);
-            res.on('end', () => {
-                try {
-                    const feedData = parseBasicRSS(data);
-                    resolve(feedData);
-                } catch (parseError) {
-                    reject(parseError);
-                }
-            });
+            response.setEncoding('utf8');
+            response.on('data', chunk => data += chunk);
+            response.on('end', () => resolve(data));
         });
 
-        req.on('error', reject);
-        req.setTimeout(15000, () => {
-            req.destroy();
+        request.on('error', (error) => {
+            // Try HTTP fallback for HTTPS errors
+            if (isHttps && feedUrl.startsWith('https://')) {
+                const httpUrl = feedUrl.replace('https://', 'http://');
+                console.log('HTTPS failed, trying HTTP:', httpUrl);
+                return fetchRSSFeed(httpUrl).then(resolve).catch(reject);
+            }
+            reject(error);
+        });
+
+        request.setTimeout(15000, () => {
+            request.destroy();
             reject(new Error('Request timeout'));
         });
-        
-        req.end();
+
+        request.end();
     });
 }
 
-function parseBasicRSS(rssText) {
+function parseRSSForGrowth(rssText) {
     const extractContent = (pattern) => {
         const match = rssText.match(pattern);
         if (match) {
@@ -139,7 +152,10 @@ function parseBasicRSS(rssText) {
     let latestEpisode = 'None';
     if (latestEpisodeMatch) {
         const itemContent = latestEpisodeMatch[1];
-        latestEpisode = extractContent(itemContent.match(/<title[^>]*><!\[CDATA\[(.*?)\]\]><\/title>|<title[^>]*>(.*?)<\/title>/i) || ['', '']);
+        const titleMatch = itemContent.match(/<title[^>]*><!\[CDATA\[(.*?)\]\]><\/title>|<title[^>]*>(.*?)<\/title>/i);
+        if (titleMatch) {
+            latestEpisode = (titleMatch[1] || titleMatch[2] || '').replace(/<[^>]*>/g, '').trim();
+        }
     }
 
     return {
@@ -153,9 +169,10 @@ function parseBasicRSS(rssText) {
 function generateGrowthAnalysis(feedData) {
     const episodeCount = feedData.episode_count;
     
-    // Calculate growth score
+    // Calculate growth score based on episode count and content quality
     let score = 50; // Base score
-    if (episodeCount > 50) score += 30;
+    if (episodeCount > 100) score += 35;
+    else if (episodeCount > 50) score += 30;
     else if (episodeCount > 20) score += 20;
     else if (episodeCount > 10) score += 10;
     
@@ -164,26 +181,30 @@ function generateGrowthAnalysis(feedData) {
     
     return {
         score: Math.min(100, score),
-        summary: `Your podcast "${feedData.title}" shows good growth potential with ${episodeCount} episodes published.`,
+        summary: `Your podcast "${feedData.title}" shows ${episodeCount > 50 ? 'strong' : episodeCount > 20 ? 'good' : 'developing'} growth potential with ${episodeCount} episodes published.`,
         seo: [
-            "Optimize episode titles with relevant keywords",
-            "Include detailed show notes for each episode",
-            "Add consistent category tags across episodes"
+            "Optimize episode titles with relevant keywords for better search discovery",
+            "Include detailed show notes with timestamps for each episode",
+            "Add consistent category tags across all episodes",
+            episodeCount < 20 ? "Build episode library to 20+ episodes for algorithm preference" : "Maintain consistent weekly publishing schedule"
         ],
         content: [
-            "Maintain consistent publishing schedule",
-            "Create series or themed episodes for better discovery",
-            "Include clear calls-to-action in episodes"
+            "Create series or themed episodes to improve binge-listening potential",
+            "Include clear calls-to-action in episodes to drive engagement",
+            episodeCount > 50 ? "Analyze your top-performing episodes and replicate successful content patterns" : "Focus on consistent content themes to build audience expectations",
+            "Add episode transcripts to improve accessibility and SEO"
         ],
         distribution: [
-            "Submit to all major podcast directories",
-            "Cross-promote on social media platforms",
-            "Consider YouTube for video versions"
+            "Submit to all major podcast directories (Apple, Spotify, Google, etc.)",
+            "Cross-promote episodes on social media with audiograms",
+            "Consider YouTube for video versions to reach broader audience",
+            episodeCount > 30 ? "Explore podcast advertising networks for monetization" : "Focus on organic growth through social sharing"
         ],
         actions: [
-            `Current library of ${episodeCount} episodes provides ${episodeCount < 20 ? 'foundation for growth' : 'substantial content depth'}`,
-            "Focus on consistent weekly publishing for audience retention",
-            "Optimize episode descriptions with relevant keywords"
+            `Current library of ${episodeCount} episodes ${episodeCount < 20 ? 'provides foundation for growth - aim for 20+ episodes' : episodeCount < 50 ? 'shows good consistency - target 50+ for sponsor appeal' : 'demonstrates substantial content depth for monetization opportunities'}`,
+            "Analyze your podcast analytics to identify peak listening times for optimal publishing",
+            episodeCount > 10 ? "Create a content calendar to maintain consistent publishing schedule" : "Focus on establishing regular publishing rhythm",
+            "Engage with your audience through social media and email newsletters to build community"
         ]
     };
 }
