@@ -66,13 +66,60 @@
         <!-- Upload Section -->
         <div class="bg-gray-800 rounded-lg p-4 sm:p-6 mb-6 sm:mb-8">
             <h3 class="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">Upload Podcast Data</h3>
-            <div class="border-2 border-dashed border-gray-600 rounded-lg p-4 sm:p-8 text-center">
+            <div class="border-2 border-dashed border-gray-600 rounded-lg p-4 sm:p-8 text-center mb-6">
                 <input type="file" id="csvFileUpload" accept=".csv" class="hidden">
                 <button onclick="document.getElementById('csvFileUpload').click()" 
                         class="bg-podboost-blue text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg hover:bg-podboost-highlight transition-colors text-sm sm:text-base">
                     Upload CSV File
                 </button>
                 <p class="text-gray-400 mt-2 text-sm sm:text-base">Upload your podcast analytics CSV for personalized sponsor matching</p>
+            </div>
+            
+            <!-- Form Controls -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Podcast Category</label>
+                    <select id="podcastCategory" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-podboost-blue">
+                        <option value="General">General</option>
+                        <option value="Business">Business</option>
+                        <option value="Technology">Technology</option>
+                        <option value="True Crime">True Crime</option>
+                        <option value="Health & Wellness">Health & Wellness</option>
+                        <option value="Entertainment">Entertainment</option>
+                        <option value="Education">Education</option>
+                        <option value="Comedy">Comedy</option>
+                        <option value="News">News</option>
+                        <option value="Sports">Sports</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Geographic Focus</label>
+                    <select id="geographicFocus" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-podboost-blue">
+                        <option value="AU">🇦🇺 Australia</option>
+                        <option value="US">🇺🇸 United States</option>
+                        <option value="UK">🇬🇧 United Kingdom</option>
+                        <option value="CA">🇨🇦 Canada</option>
+                        <option value="Global">🌍 Global</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-2">Budget Range</label>
+                    <select id="budgetRange" class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-podboost-blue">
+                        <option value="any">Any Budget</option>
+                        <option value="small">$200-$1,000 AUD</option>
+                        <option value="medium">$1,000-$3,000 AUD</option>
+                        <option value="large">$3,000+ AUD</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Find Sponsors Button -->
+            <div class="text-center">
+                <button onclick="findSponsors()" class="bg-podboost-blue text-white px-8 py-3 rounded-lg hover:bg-podboost-highlight transition-colors font-semibold text-lg shadow-md">
+                    🎯 Find AI-Matched Sponsors
+                </button>
             </div>
         </div>
 
@@ -176,22 +223,74 @@
             }
         };
 
+        // Initialize CSV upload functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Page loaded, setting up CSV upload...');
+            
+            const csvFileInput = document.getElementById('csvFileUpload');
+            const uploadButton = document.querySelector('button[onclick*="csvFileUpload"]');
+            
+            if (csvFileInput && uploadButton) {
+                console.log('CSV upload elements found');
+                
+                // Handle file selection
+                csvFileInput.addEventListener('change', function(e) {
+                    const file = e.target.files[0];
+                    if (file) {
+                        console.log('File selected:', file.name);
+                        // Show file name feedback
+                        const feedback = document.createElement('p');
+                        feedback.className = 'text-podboost-blue text-sm mt-2';
+                        feedback.textContent = `Selected: ${file.name}`;
+                        
+                        // Remove any existing feedback
+                        const existing = uploadButton.parentNode.querySelector('.text-podboost-blue');
+                        if (existing) existing.remove();
+                        
+                        uploadButton.parentNode.appendChild(feedback);
+                    }
+                });
+                
+                console.log('CSV upload setup complete');
+            } else {
+                console.error('CSV upload elements not found');
+            }
+        });
+
         async function findSponsors() {
             const category = document.getElementById('podcastCategory').value;
             const geographic_focus = document.getElementById('geographicFocus').value;
             const budget_range = document.getElementById('budgetRange').value;
-            const csvFile = document.getElementById('csvFileUpload').files[0];
+            const csvFileInput = document.getElementById('csvFileUpload');
+            const csvFile = csvFileInput ? csvFileInput.files[0] : null;
             
             let podcastName = "Your Podcast";
             let podcast_data = null;
             
+            console.log('CSV file check:', csvFile ? csvFile.name : 'No file selected');
+            
             // Process CSV if uploaded  
             if (csvFile) {
-                podcast_data = await readCSV(csvFile);
-                if (podcast_data.length > 0) {
-                    podcastName = podcast_data[0]['Episode Title'] || podcast_data[0]['Podcast Name'] || "Your Podcast";
-                    if (podcastName.includes('THE CLINK')) podcastName = 'THE CLINK';
+                try {
+                    console.log('Processing CSV file...');
+                    podcast_data = await readCSV(csvFile);
+                    console.log('CSV data processed:', podcast_data.length, 'rows');
+                    
+                    if (podcast_data.length > 0) {
+                        podcastName = podcast_data[0]['Episode Title'] || 
+                                    podcast_data[0]['Podcast Name'] || 
+                                    podcast_data[0]['Program name'] ||
+                                    "Your Podcast";
+                        if (podcastName.includes('THE CLINK')) podcastName = 'THE CLINK';
+                        console.log('Extracted podcast name:', podcastName);
+                    }
+                } catch (csvError) {
+                    console.error('CSV processing error:', csvError);
+                    alert('Error processing CSV file. Please check the file format.');
+                    return;
                 }
+            } else {
+                console.log('No CSV file - using default analysis');
             }
 
             // Show loading with enhanced animation
