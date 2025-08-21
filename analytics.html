@@ -18,14 +18,42 @@
     <!-- Navigation -->
     <nav class="p-4 border-b border-gray-700">
         <div class="container mx-auto flex justify-between items-center">
-            <a href="/" class="text-2xl font-bold text-blue-400">PodBoost</a>
-            <div class="space-x-4">
+            <a href="/" class="flex items-center space-x-3">
+                <img src="images/podboost-logo-new.png" alt="PodBoost Logo" class="w-8 h-8">
+                <span class="text-2xl font-bold text-blue-400">PodBoost</span>
+            </a>
+            <div class="flex items-center space-x-4">
                 <a href="/" class="text-gray-300 hover:text-white">Home</a>
+                <a href="analytics.html" class="text-blue-400 font-medium">Analytics</a>
                 <a href="rss-checker.html" class="text-gray-300 hover:text-white">RSS Checker</a>
                 <a href="growth-engine.html" class="text-gray-300 hover:text-white">Growth Engine</a>
+                <a href="sponsor-finder.html" class="text-gray-300 hover:text-white">Sponsor Finder</a>
+                <button onclick="showPremiumModal()" class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:from-purple-700 hover:to-blue-700 transition-all">
+                    Upgrade to Premium
+                </button>
             </div>
         </div>
     </nav>
+
+    <!-- Premium Modal -->
+    <div id="premiumModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-xl p-8 max-w-md mx-4 border border-purple-500">
+            <h2 class="text-2xl font-bold text-purple-400 mb-4">Upgrade to Premium</h2>
+            <p class="text-gray-300 mb-6">Unlock advanced features including AI-powered sponsorship finder, social media tracking, and campaign management.</p>
+            <div class="text-center mb-6">
+                <div class="text-3xl font-bold text-white">$7 USD</div>
+                <div class="text-gray-400">per month</div>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="window.open('https://buy.stripe.com/your-link', '_blank')" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                    Subscribe Now
+                </button>
+                <button onclick="closePremiumModal()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
 
     <div class="container mx-auto px-4 py-8">
         <!-- Header -->
@@ -433,6 +461,15 @@
             `).join('');
 
             container.innerHTML = recommendationsHtml;
+        }
+
+        // Premium Modal Functions
+        function showPremiumModal() {
+            document.getElementById('premiumModal').classList.remove('hidden');
+        }
+
+        function closePremiumModal() {
+            document.getElementById('premiumModal').classList.add('hidden');
         }
 
         // Initialize
