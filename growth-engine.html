@@ -307,7 +307,18 @@
                 const formData = new FormData();
                 formData.append('file', fileInput.files[0]);
                 
-                const response = await fetch('/api/analyze-csv-growth', {
+                // Auto-detect deployment environment for correct API endpoint
+                let apiUrl = '/api/analyze-csv-growth';
+                
+                // Auto-detect if we're on a deployed site (not localhost/Replit)
+                if (!window.location.hostname.includes('localhost') && 
+                    !window.location.hostname.includes('replit') &&
+                    !window.location.hostname.includes('127.0.0.1') &&
+                    !window.location.port) {
+                    apiUrl = '/.netlify/functions/analyze-csv-growth';
+                }
+                
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     body: formData
                 });
@@ -348,11 +359,6 @@
                 displayTopEpisodes(data.metrics.topPerformers);
             }
 
-            // Display engagement heat map if available
-            if (data.metrics && data.metrics.engagementInsights) {
-                displayEngagementHeatMap(data.metrics);
-            }
-            
             // Animate progress ring
             const circle = document.querySelector('.progress-ring-circle');
             const circumference = 2 * Math.PI * 40;
@@ -383,6 +389,40 @@
                 'Track audience engagement patterns',
                 'Optimize content for target demographics'
             ]);
+
+            displayRecommendations('monetization-opportunities', data.monetization_opportunities || [
+                'Explore sponsorship opportunities',
+                'Consider premium content offerings',
+                'Develop merchandise strategies'
+            ]);
+
+            displayActionItems(data.action_items || [
+                { priority: 'high', title: 'Fix RSS feed validation errors', description: 'Address critical RSS issues affecting discoverability' },
+                { priority: 'medium', title: 'Improve episode consistency', description: 'Maintain regular publishing schedule' },
+                { priority: 'low', title: 'Enhance show artwork', description: 'Update cover art for better visual appeal' }
+            ]);
+
+            document.getElementById('results').classList.remove('hidden');
+        }
+
+        function displayRecommendations(containerId, recommendations) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            container.innerHTML = '';
+            recommendations.forEach(rec => {
+                const div = document.createElement('div');
+                div.className = 'flex items-start space-x-3 p-3 bg-gray-700/50 rounded-lg';
+                div.innerHTML = `
+                    <div class="w-2 h-2 bg-podboost-blue rounded-full mt-2 flex-shrink-0"></div>
+                    <p class="text-gray-300 text-sm">${rec}</p>
+                `;
+                container.appendChild(div);
+            });
+        }
+    </script>
+</body>
+</html>
 
             displayRecommendations('monetization-opportunities', data.monetization_opportunities || [
                 'Explore sponsorship opportunities',
