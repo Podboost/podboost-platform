@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PodBoost Premium - Unlock Advanced Features</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --podboost-blue: #1e90ff;
+            --podboost-dark: #1a1e2e;
+            --podboost-highlight: #36b4ff;
+        }
+        body {
+            background-color: var(--podboost-dark);
+            color: #fff;
+        }
+        .podboost-glow {
+            text-shadow: 0 0 10px rgba(30, 144, 255, 0.7);
+        }
+        .logo-glow {
+            filter: drop-shadow(0 0 10px rgba(30, 144, 255, 0.7));
+        }
+        .card {
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(30, 144, 255, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            border-color: rgba(30, 144, 255, 0.5);
+        }
+        .btn-premium {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            color: #000;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 215, 0, 0.4);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100">
+    <!-- Navigation -->
+    <nav class="p-4 border-b border-gray-700">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="/" class="flex items-center space-x-3">
+                <img src="images/podboost-logo-new.png" alt="PodBoost Logo" class="w-8 h-8">
+                <span class="text-2xl font-bold text-blue-400">PodBoost</span>
+            </a>
+            <div class="flex items-center space-x-4">
+                <a href="/" class="text-gray-300 hover:text-white">Home</a>
+                <a href="analytics.html" class="text-gray-300 hover:text-white">Analytics</a>
+                <a href="rss-checker.html" class="text-gray-300 hover:text-white">RSS Checker</a>
+                <a href="growth-engine.html" class="text-gray-300 hover:text-white">Growth Engine</a>
+                <a href="sponsor-finder.html" class="text-gray-300 hover:text-white">Sponsor Finder</a>
+                <a href="premium-signup.html" class="text-purple-400 font-medium">Premium</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="max-w-4xl mx-auto p-6">
+        <div class="text-center mb-12 mt-8">
+            <img src="images/podboost-logo.png" alt="PodBoost Logo" class="h-20 mx-auto mb-6 logo-glow">
+            <h1 class="text-4xl font-bold mb-4 text-[#1e90ff] podboost-glow">Upgrade to PodBoost Premium</h1>
+            <p class="text-xl text-gray-300">Unlock advanced analytics and growth tools for serious podcasters</p>
+        </div>
+
+        <!-- Feature Highlight -->
+        <div id="feature-highlight" class="card p-8 mb-8 text-center">
+            <div class="text-6xl mb-4">📊</div>
+            <h2 class="text-2xl font-bold mb-4 text-[#1e90ff]">Social Impact Tracking</h2>
+            <p class="text-gray-300 mb-6">Connect your social media accounts to track how your posts drive podcast downloads. See which platforms convert best and optimize your social strategy.</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-gray-800/50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-[#1e90ff] mb-2">Platform Analytics</h3>
+                    <p class="text-sm text-gray-400">Track Twitter, Facebook, Instagram, LinkedIn performance</p>
+                </div>
+                <div class="bg-gray-800/50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-[#1e90ff] mb-2">Conversion Tracking</h3>
+                    <p class="text-sm text-gray-400">See which posts drive actual podcast downloads</p>
+                </div>
+                <div class="bg-gray-800/50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-[#1e90ff] mb-2">ROI Analysis</h3>
+                    <p class="text-sm text-gray-400">Measure social media effort vs. listener growth</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pricing Plans -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            <!-- Basic Plan -->
+            <div class="card p-8">
+                <h3 class="text-2xl font-bold mb-4 text-gray-300">Free Plan</h3>
+                <div class="text-4xl font-bold mb-6 text-gray-400">$0<span class="text-lg font-normal">/month</span></div>
+                <ul class="space-y-3 mb-8">
+                    <li class="flex items-center">
+                        <svg class="h-5 w-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        CSV Analytics
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="h-5 w-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        RSS Feed Checker
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="h-5 w-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Basic Growth Tips
+                    </li>
+                </ul>
+                <button class="w-full py-3 px-6 bg-gray-600 text-white rounded-lg hover:bg-gray-500 transition-colors">
+                    Current Plan
+                </button>
+            </div>
+
+            <!-- Premium Plan -->
+            <div class="card p-8 border-2 border-yellow-400 relative">
+                <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-orange-400 text-black px-4 py-1 rounded-full text-sm font-bold">
+                    RECOMMENDED
+                </div>
+                <h3 class="text-2xl font-bold mb-4 text-[#1e90ff]">Premium Plan</h3>
+                <div class="text-4xl font-bold mb-6 text-[#1e90ff]">$7<span class="text-lg font-normal"> USD/month</span></div>
+                <ul class="space-y-3 mb-8">
+                    <li class="flex items-center">
+                        <svg class="h-5 w-5 text-green-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Everything in Free
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="h-5 w-5 text-yellow-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <strong>Social Impact Tracking</strong>
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="h-5 w-5 text-yellow-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Advanced AI Growth Tips
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="h-5 w-5 text-yellow-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Premium Sponsorship Finder
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="h-5 w-5 text-yellow-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Campaign Manager Access
+                    </li>
+                </ul>
+                <button onclick="upgradeToPremium()" class="block w-full py-3 px-6 btn-premium rounded-lg text-center">
+                    Upgrade to Premium - $7/month
+                </button>
+            </div>
+        </div>
+
+
+    </div>
+
+    <script src="https://js.stripe.com/v3/"></script>
+    <script>
+        // Initialize Stripe with your publishable key
+        const stripe = Stripe('pk_live_51L3Vg1AG75e8uzLKUpKJtNuxwVLscGlrmZmbrSoV3xPJeZX5OyBsi4twFlxgMLTjfHscUG8SDDPx322RPw0k4oKH00yKhzhp61');
+
+        // Load the navbar
+        fetch('/navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar-container').innerHTML = data;
+            })
+            .catch(error => console.error('Error loading navbar:', error));
+
+        // Get URL parameters to customize the page
+        const urlParams = new URLSearchParams(window.location.search);
+        const feature = urlParams.get('feature');
+        
+        if (feature === 'social-impact') {
+            // Feature is already highlighted by default
+            console.log('Showing Social Impact upgrade page');
+        }
+
+        // Removed old upgrade function - now redirects to signup form
+
+        // Stripe Checkout Integration
+        async function upgradeToPremium() {
+            try {
+                // Create checkout session
+                const response = await fetch('/api/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        priceId: 'price_premium_monthly', // Your Stripe price ID
+                        successUrl: window.location.origin + '/premium-success?session_id={CHECKOUT_SESSION_ID}',
+                        cancelUrl: window.location.origin + '/premium-signup?cancelled=true'
+                    })
+                });
+
+                const session = await response.json();
+                
+                if (session.error) {
+                    alert('Payment setup error: ' + session.error);
+                    return;
+                }
+
+                // Redirect to Stripe Checkout
+                const result = await stripe.redirectToCheckout({
+                    sessionId: session.id
+                });
+
+                if (result.error) {
+                    alert('Payment error: ' + result.error.message);
+                }
+            } catch (error) {
+                console.error('Checkout error:', error);
+                alert('Unable to start checkout. Please try again.');
+            }
+        }
+    </script>
+</body>
+</html>
