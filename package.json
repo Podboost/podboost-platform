@@ -1,8 +1,0 @@
-{
-  "name": "podboost",
-  "version": "1.0.0",
-  "description": "PodBoost - Podcast Growth Platform",
-  "dependencies": {
-    "openai": "^4.67.1"
-  }
-}
