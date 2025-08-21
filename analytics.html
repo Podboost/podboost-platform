@@ -157,30 +157,78 @@
                 const firstRow = data[0];
                 let downloadCol = null;
                 
+                // Common download column names
+                const downloadColumnNames = [
+                    'downloads', 'download', 'total downloads', 'all time downloads',
+                    'listens', 'listen', 'total listens', 'plays', 'play count',
+                    'unique downloads', 'total plays', 'episode downloads'
+                ];
+                
                 for (const [key, value] of Object.entries(firstRow)) {
-                    if (key.toLowerCase().includes('download') || 
-                        key.toLowerCase().includes('listen') || 
-                        key.toLowerCase().includes('play')) {
+                    const lowerKey = key.toLowerCase().trim();
+                    if (downloadColumnNames.some(name => lowerKey.includes(name))) {
                         downloadCol = key;
                         break;
                     }
                 }
 
                 if (!downloadCol) {
-                    alert('Could not find download column. Please ensure your CSV has a column with "download", "listen", or "play" in the name.');
+                    console.log('Available columns:', Object.keys(firstRow));
+                    alert('Could not find download column. Available columns: ' + Object.keys(firstRow).join(', '));
                     document.getElementById('loading').classList.add('hidden');
                     return;
                 }
+
+                // Find title column
+                let titleCol = null;
+                const titleColumnNames = [
+                    'title', 'episode title', 'episode name', 'name', 'episode',
+                    'show title', 'track title', 'content title', 'podcast title',
+                    'episode_title', 'episode_name', 'track_title'
+                ];
+                
+                for (const [key, value] of Object.entries(firstRow)) {
+                    const lowerKey = key.toLowerCase().trim();
+                    if (titleColumnNames.some(name => lowerKey.includes(name))) {
+                        titleCol = key;
+                        break;
+                    }
+                }
+
+                // If no title column found, use the first text column
+                if (!titleCol) {
+                    for (const [key, value] of Object.entries(firstRow)) {
+                        if (key !== downloadCol && typeof value === 'string' && value.length > 0) {
+                            titleCol = key;
+                            break;
+                        }
+                    }
+                }
+
+                console.log('Using columns:', { downloadCol, titleCol });
 
                 // Process episodes
                 const episodes = data.filter(row => {
                     const downloads = parseInt(row[downloadCol]);
                     return !isNaN(downloads) && downloads >= 0;
-                }).map(row => ({
-                    title: row.title || row.episode || row.name || row['Episode Title'] || 'Unknown Episode',
-                    downloads: parseInt(row[downloadCol]) || 0,
-                    date: row.date || row.published || row['Publish Date'] || ''
-                }));
+                }).map(row => {
+                    let title = 'Unknown Episode';
+                    
+                    if (titleCol && row[titleCol]) {
+                        title = row[titleCol].toString().trim();
+                    } else {
+                        // Try multiple title column variations
+                        title = row.title || row.episode || row.name || row['Episode Title'] || 
+                                row['Episode Name'] || row['Track Title'] || row['Content Title'] ||
+                                row.episode_title || row.episode_name || 'Unknown Episode';
+                    }
+                    
+                    return {
+                        title: title,
+                        downloads: parseInt(row[downloadCol]) || 0,
+                        date: row.date || row.published || row['Publish Date'] || row.release_date || ''
+                    };
+                });
 
                 if (episodes.length === 0) {
                     alert('No valid episodes found in CSV. Please check your data format.');
