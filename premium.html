@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PodBoost Premium - $7/month</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1e2e 0%, #16213e 100%);
+            min-height: 100vh;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(30, 144, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        .premium-btn {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            color: #000;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .premium-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 215, 0, 0.4);
+        }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Navigation -->
+    <nav class="p-4 border-b border-gray-700">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="index.html" class="flex items-center space-x-3">
+                <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                    <span class="text-white font-bold text-lg">🎙️</span>
+                </div>
+                <span class="text-2xl font-bold text-blue-400">PodBoost</span>
+            </a>
+            <div class="flex items-center space-x-4">
+                <a href="index.html" class="text-gray-300 hover:text-white">Home</a>
+                <a href="analytics.html" class="text-gray-300 hover:text-white">Analytics</a>
+                <a href="rss-checker.html" class="text-gray-300 hover:text-white">RSS Checker</a>
+                <a href="growth-engine.html" class="text-gray-300 hover:text-white">Growth Engine</a>
+                <a href="premium.html" class="text-purple-400 font-medium">Premium</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-4xl mx-auto p-6">
+        <!-- Header -->
+        <div class="text-center mb-12 mt-8">
+            <div class="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <span class="text-white font-bold text-3xl">🚀</span>
+            </div>
+            <h1 class="text-4xl font-bold mb-4 text-blue-400">Upgrade to PodBoost Premium</h1>
+            <p class="text-xl text-gray-300">Unlock advanced analytics and growth tools for serious podcasters</p>
+        </div>
+
+        <!-- Pricing Plans -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            <!-- Free Plan -->
+            <div class="card p-8 rounded-xl">
+                <h3 class="text-2xl font-bold mb-4 text-gray-300">Free Plan</h3>
+                <div class="text-4xl font-bold mb-6 text-gray-400">$0<span class="text-lg font-normal">/month</span></div>
+                <ul class="space-y-3 mb-8">
+                    <li class="flex items-center">
+                        <span class="text-green-400 mr-3">✓</span>
+                        CSV Analytics Dashboard
+                    </li>
+                    <li class="flex items-center">
+                        <span class="text-green-400 mr-3">✓</span>
+                        RSS Feed Checker
+                    </li>
+                    <li class="flex items-center">
+                        <span class="text-green-400 mr-3">✓</span>
+                        Basic Growth Tips
+                    </li>
+                </ul>
+                <button class="w-full py-3 px-6 bg-gray-600 text-white rounded-lg">
+                    Current Plan
+                </button>
+            </div>
+
+            <!-- Premium Plan -->
+            <div class="card p-8 rounded-xl border-2 border-yellow-400 relative">
+                <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-yellow-400 to-orange-400 text-black px-4 py-1 rounded-full text-sm font-bold">
+                    RECOMMENDED
+                </div>
+                <h3 class="text-2xl font-bold mb-4 text-blue-400">Premium Plan</h3>
+                <div class="text-4xl font-bold mb-6 text-blue-400">$7<span class="text-lg font-normal"> USD/month</span></div>
+                <ul class="space-y-3 mb-8">
+                    <li class="flex items-center">
+                        <span class="text-green-400 mr-3">✓</span>
+                        Everything in Free
+                    </li>
+                    <li class="flex items-center">
+                        <span class="text-yellow-400 mr-3">⭐</span>
+                        <strong>AI Growth Engine</strong>
+                    </li>
+                    <li class="flex items-center">
+                        <span class="text-yellow-400 mr-3">⭐</span>
+                        Social Media Tracking
+                    </li>
+                    <li class="flex items-center">
+                        <span class="text-yellow-400 mr-3">⭐</span>
+                        Premium Sponsorship Finder
+                    </li>
+                    <li class="flex items-center">
+                        <span class="text-yellow-400 mr-3">⭐</span>
+                        Campaign Manager
+                    </li>
+                    <li class="flex items-center">
+                        <span class="text-yellow-400 mr-3">⭐</span>
+                        Priority Support
+                    </li>
+                </ul>
+                <button onclick="startCheckout()" class="w-full py-3 px-6 premium-btn rounded-lg">
+                    Upgrade to Premium - $7/month
+                </button>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="card p-8 rounded-xl mb-8">
+            <h2 class="text-2xl font-bold mb-6 text-blue-400 text-center">Premium Features</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <div class="text-4xl mb-4">🧠</div>
+                    <h3 class="font-semibold text-blue-400 mb-2">AI Growth Engine</h3>
+                    <p class="text-gray-400">Get personalized recommendations to grow your podcast audience</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl mb-4">📊</div>
+                    <h3 class="font-semibold text-blue-400 mb-2">Social Tracking</h3>
+                    <p class="text-gray-400">Monitor how social media drives podcast downloads</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-4xl mb-4">🤝</div>
+                    <h3 class="font-semibold text-blue-400 mb-2">Sponsorship Finder</h3>
+                    <p class="text-gray-400">Connect with brands that match your audience</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="text-center card p-12 rounded-xl">
+            <h2 class="text-3xl font-bold text-blue-400 mb-4">Ready to Boost Your Podcast?</h2>
+            <p class="text-xl text-gray-300 mb-8">Join thousands of podcasters growing with PodBoost</p>
+            <button onclick="startCheckout()" class="premium-btn px-8 py-4 text-lg rounded-xl">
+                Start Premium Today - $7/month
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Stripe - replace with your publishable key
+        const stripe = Stripe('pk_test_51L3Vg1AG75e8uzLKUpKJtNuxwVLscGlrmZmbrSoV3xPJeZX5OyBsi4twFlxgMLTjfHscUG8SDDPx322RPw0k4oKH00yKhzhp61');
+
+        async function startCheckout() {
+            try {
+                // For Netlify deployment, use serverless function
+                const response = await fetch('/.netlify/functions/create-checkout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        success_url: window.location.origin + '/premium-success.html',
+                        cancel_url: window.location.origin + '/premium.html'
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Payment system temporarily unavailable');
+                }
+
+                const session = await response.json();
+                
+                // Redirect to Stripe
+                await stripe.redirectToCheckout({ sessionId: session.id });
+                
+            } catch (error) {
+                console.error('Checkout error:', error);
+                // Fallback to direct Stripe link
+                window.open('https://buy.stripe.com/test_your_payment_link_here', '_blank');
+            }
+        }
+    </script>
+</body>
+</html>
