@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - PodBoost</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <style>
+        body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); }
+        .card { background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(59, 130, 246, 0.3); }
+        .btn { background: linear-gradient(135deg, #1e3a8a, #3b82f6); transition: all 0.3s ease; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4); }
+    </style>
+</head>
+<body class="min-h-screen text-white">
+    <!-- Navigation -->
+    <nav class="p-4 border-b border-gray-700">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="/" class="flex items-center space-x-3">
+                <img src="images/podboost-logo-new.png" alt="PodBoost Logo" class="w-8 h-8">
+                <span class="text-2xl font-bold text-blue-400">PodBoost</span>
+            </a>
+            <div class="flex items-center space-x-4">
+                <a href="/" class="text-gray-300 hover:text-white">Home</a>
+                <a href="analytics.html" class="text-blue-400 font-medium">Analytics</a>
+                <a href="rss-checker.html" class="text-gray-300 hover:text-white">RSS Checker</a>
+                <a href="growth-engine.html" class="text-gray-300 hover:text-white">Growth Engine</a>
+                <a href="sponsor-finder.html" class="text-gray-300 hover:text-white">Sponsor Finder</a>
+                <a href="premium-signup.html" class="text-gray-300 hover:text-white">Premium</a>
+                <button onclick="showPremiumModal()" class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:from-purple-700 hover:to-blue-700 transition-all">
+                    Upgrade to Premium
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Premium Modal -->
+    <div id="premiumModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-gray-900 rounded-xl p-8 max-w-md mx-4 border border-purple-500">
+            <h2 class="text-2xl font-bold text-purple-400 mb-4">Upgrade to Premium</h2>
+            <p class="text-gray-300 mb-6">Unlock advanced features including AI-powered sponsorship finder, social media tracking, and campaign management.</p>
+            <div class="text-center mb-6">
+                <div class="text-3xl font-bold text-white">$7 USD</div>
+                <div class="text-gray-400">per month</div>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="window.open('https://buy.stripe.com/your-link', '_blank')" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                    Subscribe Now
+                </button>
+                <button onclick="closePremiumModal()" class="flex-1 bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-blue-400 mb-4">Podcast Analytics</h1>
+            <p class="text-gray-300 max-w-2xl mx-auto">Upload your CSV download data to get comprehensive insights, growth recommendations, and performance analysis.</p>
+        </header>
+
+        <!-- Upload Section -->
+        <section class="card rounded-xl p-8 mb-8 max-w-2xl mx-auto">
+            <div class="text-center">
+                <h2 class="text-2xl font-semibold text-blue-400 mb-6">Upload Your Data</h2>
+                <div class="border-2 border-dashed border-blue-500/50 rounded-lg p-8 mb-6">
+                    <input type="file" id="csvFile" accept=".csv" class="hidden">
+                    <label for="csvFile" class="cursor-pointer block">
+                        <div class="text-4xl mb-4">📊</div>
+                        <p class="text-lg font-medium mb-2">Drop your CSV file here or click to browse</p>
+                        <p class="text-sm text-gray-400">Supports podcast download data, episode analytics, and performance metrics</p>
+                    </label>
+                </div>
+                <button onclick="analyzeData()" id="analyzeBtn" class="btn text-white px-6 py-3 rounded-lg font-medium" disabled>
+                    Select CSV File First
+                </button>
+            </div>
+        </section>
+
+        <!-- Loading -->
+        <div id="loading" class="hidden text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mb-4"></div>
+            <p class="text-blue-400 text-lg">Analyzing your podcast data...</p>
+        </div>
+
+        <!-- Results -->
+        <div id="results" class="hidden">
+            <!-- Metrics Cards -->
+            <section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="card rounded-xl p-6 text-center">
+                    <div class="text-3xl font-bold text-blue-400 mb-2" id="totalEpisodes">0</div>
+                    <div class="text-gray-300">Total Episodes</div>
+                </div>
+                <div class="card rounded-xl p-6 text-center">
+                    <div class="text-3xl font-bold text-green-400 mb-2" id="totalDownloads">0</div>
+                    <div class="text-gray-300">Total Downloads</div>
+                </div>
+                <div class="card rounded-xl p-6 text-center">
+                    <div class="text-3xl font-bold text-purple-400 mb-2" id="avgDownloads">0</div>
+                    <div class="text-gray-300">Average Downloads</div>
+                </div>
+                <div class="card rounded-xl p-6 text-center">
+                    <div class="text-3xl font-bold text-yellow-400 mb-2" id="growthTrend">0%</div>
+                    <div class="text-gray-300">Growth Trend</div>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                <div class="card rounded-xl p-6">
+                    <h3 class="text-xl font-semibold text-blue-400 mb-4">Download Trends</h3>
+                    <div class="h-64">
+                        <canvas id="trendsChart"></canvas>
+                    </div>
+                </div>
+                <div class="card rounded-xl p-6">
+                    <h3 class="text-xl font-semibold text-blue-400 mb-4">Top Performing Episodes</h3>
+                    <div class="h-64 overflow-y-auto" id="topEpisodes">
+                        <!-- Episodes will be populated here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recommendations -->
+            <section class="card rounded-xl p-8">
+                <h3 class="text-2xl font-semibold text-blue-400 mb-6 text-center">Growth Recommendations</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="recommendations">
+                    <!-- Recommendations will be populated here -->
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        let csvData = null;
+        let trendsChart = null;
+
+        // File input handler
+        document.getElementById('csvFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.name.toLowerCase().endsWith('.csv')) {
+                document.getElementById('analyzeBtn').disabled = false;
+                document.getElementById('analyzeBtn').textContent = `Analyze ${file.name}`;
+                console.log('CSV file selected:', file.name);
+            } else {
+                document.getElementById('analyzeBtn').disabled = true;
+                document.getElementById('analyzeBtn').textContent = 'Select CSV File First';
+            }
+        });
+
+        function analyzeData() {
+            const fileInput = document.getElementById('csvFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a CSV file first');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('results').classList.add('hidden');
+
+            // Parse CSV with PapaParse
+            Papa.parse(file, {
+                header: true,
+                complete: function(results) {
+                    console.log('CSV parsed successfully:', results.data.length, 'rows');
+                    processData(results.data);
+                },
+                error: function(error) {
+                    console.error('Error parsing CSV:', error);
+                    alert('Error parsing CSV file. Please check the format and try again.');
+                    document.getElementById('loading').classList.add('hidden');
+                }
+            });
+        }
+
+        function processData(data) {
+            try {
+                // Find download column
+                const firstRow = data[0];
+                let downloadCol = null;
+                
+                // Common download column names
+                const downloadColumnNames = [
+                    'downloads', 'download', 'total downloads', 'all time downloads',
+                    'listens', 'listen', 'total listens', 'plays', 'play count',
+                    'unique downloads', 'total plays', 'episode downloads'
+                ];
+                
+                for (const [key, value] of Object.entries(firstRow)) {
+                    const lowerKey = key.toLowerCase().trim();
+                    if (downloadColumnNames.some(name => lowerKey.includes(name))) {
+                        downloadCol = key;
+                        break;
+                    }
+                }
+
+                if (!downloadCol) {
+                    console.log('Available columns:', Object.keys(firstRow));
+                    alert('Could not find download column. Available columns: ' + Object.keys(firstRow).join(', '));
+                    document.getElementById('loading').classList.add('hidden');
+                    return;
+                }
+
+                // Find title column
+                let titleCol = null;
+                const titleColumnNames = [
+                    'title', 'episode title', 'episode name', 'name', 'episode',
+                    'show title', 'track title', 'content title', 'podcast title',
+                    'episode_title', 'episode_name', 'track_title'
+                ];
+                
+                for (const [key, value] of Object.entries(firstRow)) {
+                    const lowerKey = key.toLowerCase().trim();
+                    if (titleColumnNames.some(name => lowerKey.includes(name))) {
+                        titleCol = key;
+                        break;
+                    }
+                }
+
+                // If no title column found, use the first text column
+                if (!titleCol) {
+                    for (const [key, value] of Object.entries(firstRow)) {
+                        if (key !== downloadCol && typeof value === 'string' && value.length > 0) {
+                            titleCol = key;
+                            break;
+                        }
+                    }
+                }
+
+                console.log('Using columns:', { downloadCol, titleCol });
+
+                // Process episodes
+                const episodes = data.filter(row => {
+                    const downloads = parseInt(row[downloadCol]);
+                    return !isNaN(downloads) && downloads >= 0;
+                }).map(row => {
+                    let title = 'Unknown Episode';
+                    
+                    if (titleCol && row[titleCol]) {
+                        title = row[titleCol].toString().trim();
+                    } else {
+                        // Try multiple title column variations
+                        title = row.title || row.episode || row.name || row['Episode Title'] || 
+                                row['Episode Name'] || row['Track Title'] || row['Content Title'] ||
+                                row.episode_title || row.episode_name || 'Unknown Episode';
+                    }
+                    
+                    return {
+                        title: title,
+                        downloads: parseInt(row[downloadCol]) || 0,
+                        date: row.date || row.published || row['Publish Date'] || row.release_date || ''
+                    };
+                });
+
+                if (episodes.length === 0) {
+                    alert('No valid episodes found in CSV. Please check your data format.');
+                    document.getElementById('loading').classList.add('hidden');
+                    return;
+                }
+
+                // Calculate metrics
+                const totalEpisodes = episodes.length;
+                const totalDownloads = episodes.reduce((sum, ep) => sum + ep.downloads, 0);
+                const avgDownloads = Math.round(totalDownloads / totalEpisodes);
+
+                // Sort episodes by downloads
+                const sortedEpisodes = episodes.sort((a, b) => b.downloads - a.downloads);
+                const topEpisodes = sortedEpisodes.slice(0, 10);
+
+                // Calculate growth trend
+                const growthTrend = calculateGrowthTrend(episodes);
+
+                // Update UI
+                updateMetrics(totalEpisodes, totalDownloads, avgDownloads, growthTrend);
+                displayTopEpisodes(topEpisodes);
+                createTrendsChart(episodes);
+                generateRecommendations(episodes, avgDownloads, topEpisodes);
+
+                // Show results
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('results').classList.remove('hidden');
+
+                console.log('Analysis complete:', {
+                    totalEpisodes,
+                    totalDownloads,
+                    avgDownloads,
+                    growthTrend
+                });
+
+            } catch (error) {
+                console.error('Error processing data:', error);
+                alert('Error processing data. Please check your CSV format and try again.');
+                document.getElementById('loading').classList.add('hidden');
+            }
+        }
+
+        function calculateGrowthTrend(episodes) {
+            if (episodes.length < 2) return '0.0';
+            
+            // Compare first half vs second half
+            const midPoint = Math.floor(episodes.length / 2);
+            const firstHalf = episodes.slice(0, midPoint);
+            const secondHalf = episodes.slice(midPoint);
+            
+            const firstAvg = firstHalf.reduce((sum, ep) => sum + ep.downloads, 0) / firstHalf.length;
+            const secondAvg = secondHalf.reduce((sum, ep) => sum + ep.downloads, 0) / secondHalf.length;
+            
+            const growth = ((secondAvg - firstAvg) / firstAvg * 100);
+            return (growth > 0 ? '+' : '') + growth.toFixed(1);
+        }
+
+        function updateMetrics(totalEpisodes, totalDownloads, avgDownloads, growthTrend) {
+            document.getElementById('totalEpisodes').textContent = totalEpisodes.toLocaleString();
+            document.getElementById('totalDownloads').textContent = totalDownloads.toLocaleString();
+            document.getElementById('avgDownloads').textContent = avgDownloads.toLocaleString();
+            document.getElementById('growthTrend').textContent = growthTrend + '%';
+        }
+
+        function displayTopEpisodes(topEpisodes) {
+            const container = document.getElementById('topEpisodes');
+            const episodesHtml = topEpisodes.map((episode, index) => `
+                <div class="flex items-center justify-between p-3 border-b border-gray-700 last:border-b-0 hover:bg-gray-800/50 rounded">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center mr-3">
+                            <span class="text-sm font-bold text-blue-400">${index + 1}</span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="font-medium text-white truncate" title="${episode.title}">${episode.title}</div>
+                            <div class="text-sm text-gray-400">${episode.date || 'No date'}</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-bold text-blue-400">${episode.downloads.toLocaleString()}</div>
+                        <div class="text-xs text-gray-400">downloads</div>
+                    </div>
+                </div>
+            `).join('');
+            container.innerHTML = episodesHtml;
+        }
+
+        function createTrendsChart(episodes) {
+            const ctx = document.getElementById('trendsChart').getContext('2d');
+            
+            // Destroy existing chart
+            if (trendsChart) {
+                trendsChart.destroy();
+            }
+
+            const chartData = episodes.slice(0, 20);
+            const labels = chartData.map((ep, index) => {
+                const title = ep.title.length > 15 ? ep.title.substring(0, 15) + '...' : ep.title;
+                return title || `Episode ${index + 1}`;
+            });
+            const downloads = chartData.map(ep => ep.downloads);
+
+            trendsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Downloads',
+                        data: downloads,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { 
+                                color: '#9CA3AF',
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            },
+                            grid: { color: 'rgba(156, 163, 175, 0.1)' }
+                        },
+                        x: {
+                            ticks: { 
+                                color: '#9CA3AF',
+                                maxTicksLimit: 10
+                            },
+                            grid: { color: 'rgba(156, 163, 175, 0.1)' }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+
+        function generateRecommendations(episodes, avgDownloads, topEpisodes) {
+            const container = document.getElementById('recommendations');
+            
+            // Analyze data for recommendations
+            const recommendations = [
+                {
+                    title: 'Content Strategy',
+                    icon: '🎯',
+                    suggestions: [
+                        `Your top episode "${topEpisodes[0].title}" has ${topEpisodes[0].downloads.toLocaleString()} downloads`,
+                        'Focus on topics from your highest-performing episodes',
+                        'Maintain consistent episode quality and production value',
+                        'Consider creating series around popular themes'
+                    ]
+                },
+                {
+                    title: 'Publishing Schedule',
+                    icon: '📅',
+                    suggestions: [
+                        `You have ${episodes.length} episodes with an average of ${avgDownloads.toLocaleString()} downloads`,
+                        'Maintain a consistent publishing schedule',
+                        'Analyze your best-performing release patterns',
+                        'Consider batch recording for consistency'
+                    ]
+                },
+                {
+                    title: 'Audience Growth',
+                    icon: '📈',
+                    suggestions: [
+                        'Promote your top-performing episodes on social media',
+                        'Create audiogram clips from popular segments',
+                        'Engage with listeners through comments and reviews',
+                        'Cross-promote episodes with similar topics'
+                    ]
+                }
+            ];
+
+            const recommendationsHtml = recommendations.map(rec => `
+                <div class="bg-gray-800/50 rounded-lg p-6 border border-gray-600">
+                    <div class="text-3xl mb-4 text-center">${rec.icon}</div>
+                    <h4 class="font-semibold text-blue-400 mb-4 text-center">${rec.title}</h4>
+                    <ul class="space-y-3">
+                        ${rec.suggestions.map(suggestion => `
+                            <li class="flex items-start">
+                                <span class="text-blue-400 mr-2 mt-1">•</span>
+                                <span class="text-gray-300 text-sm">${suggestion}</span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `).join('');
+
+            container.innerHTML = recommendationsHtml;
+        }
+
+        // Premium Modal Functions
+        function showPremiumModal() {
+            document.getElementById('premiumModal').classList.remove('hidden');
+        }
+
+        function closePremiumModal() {
+            document.getElementById('premiumModal').classList.add('hidden');
+        }
+
+        // Initialize
+        console.log('Analytics page loaded');
+    </script>
+</body>
+</html>
