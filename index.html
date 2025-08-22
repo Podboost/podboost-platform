@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PodBoost - Podcast Growth Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+        .card { 
+            background: rgba(15, 23, 42, 0.8); 
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            transition: all 0.3s ease;
+        }
+        .card:hover { 
+            border-color: rgba(59, 130, 246, 0.6);
+            transform: translateY(-2px);
+        }
+        .btn { 
+            background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+            transition: all 0.3s ease;
+        }
+        .btn:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-white">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
+        <!-- Header -->
+        <header class="text-center mb-12">
+            <div class="flex items-center justify-center space-x-4 mb-4">
+                <img src="images/podboost-logo-new.png" alt="PodBoost Logo" class="w-16 h-16">
+                <h1 class="text-5xl font-bold text-blue-400">PodBoost</h1>
+            </div>
+            <p class="text-xl text-gray-300 mb-2">The toolkit that supercharges your podcast growth with data-driven insights</p>
+            <p class="text-gray-400"><a href="https://podshape.com/" class="text-blue-400 hover:underline">a podshape company</a></p>
+        </header>
+
+        <!-- Tools Grid -->
+        <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            <!-- Analytics -->
+            <div class="card rounded-xl p-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto bg-blue-500/20 rounded-full flex items-center justify-center mb-4">
+                        <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-blue-400 mb-3">Analytics</h3>
+                    <p class="text-gray-300 mb-6">Upload your download data for powerful insights to help drive growth and engagement.</p>
+                    <a href="analytics.html" class="btn text-white px-6 py-3 rounded-lg inline-block font-medium">Analyze Downloads</a>
+                </div>
+            </div>
+
+            <!-- RSS Checker -->
+            <div class="card rounded-xl p-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto bg-green-500/20 rounded-full flex items-center justify-center mb-4">
+                        <svg class="w-8 h-8 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-green-400 mb-3">RSS Checker</h3>
+                    <p class="text-gray-300 mb-6">Check your podcast RSS feed for errors and ensure maximum compatibility across platforms.</p>
+                    <a href="rss-checker.html" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg inline-block font-medium transition-colors">Validate Feed</a>
+                </div>
+            </div>
+
+            <!-- Growth Engine -->
+            <div class="card rounded-xl p-6">
+                <div class="text-center">
+                    <div class="w-16 h-16 mx-auto bg-purple-500/20 rounded-full flex items-center justify-center mb-4">
+                        <svg class="w-8 h-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold text-purple-400 mb-3">Growth Engine</h3>
+                    <p class="text-gray-300 mb-6">Get personalized recommendations to grow your podcast audience based on your CSV analytics data.</p>
+                    <a href="growth-engine.html" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg inline-block font-medium transition-colors">Analyze & Get Tips</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Premium Features -->
+        <section class="mb-16">
+            <h2 class="text-3xl font-bold text-center text-yellow-400 mb-8">Premium Features</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Sponsorship Finder -->
+                <div class="card rounded-xl p-6 border-yellow-400/50 relative">
+                    <div class="absolute top-4 right-4 bg-yellow-400 text-black px-2 py-1 rounded-full text-xs font-bold">PREMIUM</div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 mx-auto bg-yellow-400/20 rounded-full flex items-center justify-center mb-4">
+                            <svg class="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-yellow-400 mb-3">Sponsorship Finder</h3>
+                        <p class="text-gray-300 mb-6">AI-powered sponsor matching with verified contact information for monetization opportunities.</p>
+                        <a href="sponsorship-finder.html" class="bg-gradient-to-r from-yellow-400 to-orange-400 text-black px-6 py-3 rounded-lg inline-block font-medium">Find Sponsors</a>
+                    </div>
+                </div>
+
+                <!-- Social Tracker -->
+                <div class="card rounded-xl p-6 border-yellow-400/50 relative">
+                    <div class="absolute top-4 right-4 bg-yellow-400 text-black px-2 py-1 rounded-full text-xs font-bold">PREMIUM</div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 mx-auto bg-yellow-400/20 rounded-full flex items-center justify-center mb-4">
+                            <svg class="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-yellow-400 mb-3">Social Media Tracker</h3>
+                        <p class="text-gray-300 mb-6">Track clicks from Twitter, Instagram, LinkedIn and other platforms to measure social impact.</p>
+                        <a href="social-media-tracker.html" class="bg-gradient-to-r from-yellow-400 to-orange-400 text-black px-6 py-3 rounded-lg inline-block font-medium">Track Social Media</a>
+                    </div>
+                </div>
+
+                <!-- Campaign Manager -->
+                <div class="card rounded-xl p-6 border-yellow-400/50 relative">
+                    <div class="absolute top-4 right-4 bg-yellow-400 text-black px-2 py-1 rounded-full text-xs font-bold">PREMIUM</div>
+                    <div class="text-center">
+                        <div class="w-16 h-16 mx-auto bg-yellow-400/20 rounded-full flex items-center justify-center mb-4">
+                            <svg class="w-8 h-8 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-semibold text-yellow-400 mb-3">Campaign Manager</h3>
+                        <p class="text-gray-300 mb-6">Submit your podcast for cross-promotion campaigns and discover partnership opportunities.</p>
+                        <a href="campaigns.html" class="bg-gradient-to-r from-yellow-400 to-orange-400 text-black px-6 py-3 rounded-lg inline-block font-medium">Launch Campaigns</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="text-center bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-2xl p-12 mb-16">
+            <h2 class="text-3xl font-bold text-blue-400 mb-4">Ready to Boost Your Podcast?</h2>
+            <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">Start with our powerful analytics tool to uncover insights about your podcast's performance and get actionable growth recommendations.</p>
+            <a href="analytics.html" class="btn text-white px-8 py-4 text-lg rounded-xl inline-block font-medium">Get Started Now</a>
+        </section>
+
+        <!-- Footer -->
+        <footer class="border-t border-gray-700 pt-8 text-center text-gray-400">
+            <p>&copy; 2025 PodBoost. All rights reserved. | <a href="https://podshape.com/" class="text-blue-400 hover:underline">podshape.com</a></p>
+        </footer>
+    </div>
+
+    <!-- Simple status check -->
+    <script>
+        console.log('PodBoost homepage loaded successfully');
+        // Test if site is working
+        document.addEventListener('DOMContentLoaded', function() {
+            const links = document.querySelectorAll('a[href^="analytics"], a[href^="rss-checker"], a[href^="growth-engine"]');
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    console.log('Navigating to:', this.href);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
