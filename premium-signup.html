@@ -1,306 +1,526 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.6">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PodBoost Premium - Unlock Advanced Features</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --podboost-blue: #1e90ff;
+            --podboost-dark: #1a1e2e;
+            --podboost-highlight: #36b4ff;
+        }
+        
+        body {
+            background-color: var(--podboost-dark);
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .podboost-glow {
+            text-shadow: 0 0 10px rgba(30, 144, 255, 0.7);
+        }
+        
+        .logo-glow {
+            filter: drop-shadow(0 0 10px rgba(30, 144, 255, 0.7));
+        }
+        
+        /* Navigation */
+        nav {
+            padding: 1rem 0;
+            border-bottom: 1px solid #374151;
+        }
+        
+        .nav-flex {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+        }
+        
+        .logo {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #1e90ff, #36b4ff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1e90ff;
+        }
+        
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+        
+        .nav-link {
+            color: #9ca3af;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .nav-link:hover {
+            color: white;
+        }
+        
+        .nav-link.active {
+            color: #a78bfa;
+            font-weight: 500;
+        }
+        
+        /* Main content */
+        .main-content {
+            max-width: 64rem;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        
+        .hero-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            margin-top: 2rem;
+        }
+        
+        .hero-logo {
+            height: 80px;
+            width: 80px;
+            background: linear-gradient(135deg, #1e90ff, #36b4ff);
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 32px;
+        }
+        
+        .hero-title {
+            font-size: 2.25rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #1e90ff;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: #d1d5db;
+        }
+        
+        /* Cards */
+        .card {
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(30, 144, 255, 0.2);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            border-color: rgba(30, 144, 255, 0.5);
+        }
+        
+        .feature-highlight {
+            padding: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .feature-icon {
+            font-size: 3.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #1e90ff;
+        }
+        
+        .feature-description {
+            color: #d1d5db;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .feature-item {
+            background-color: rgba(31, 41, 55, 0.5);
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .feature-item h3 {
+            font-weight: 600;
+            color: #1e90ff;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-item p {
+            font-size: 0.875rem;
+            color: #9ca3af;
+        }
+        
+        /* Pricing grid */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .pricing-card {
+            padding: 2rem;
+        }
+        
+        .pricing-card.recommended {
+            border: 2px solid #facc15;
+            position: relative;
+        }
+        
+        .recommended-badge {
+            position: absolute;
+            top: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #facc15, #f97316);
+            color: black;
+            padding: 0.25rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: bold;
+        }
+        
+        .plan-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .plan-title.free {
+            color: #9ca3af;
+        }
+        
+        .plan-title.premium {
+            color: #1e90ff;
+        }
+        
+        .plan-price {
+            font-size: 2.25rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+        }
+        
+        .plan-price.free {
+            color: #9ca3af;
+        }
+        
+        .plan-price.premium {
+            color: #1e90ff;
+        }
+        
+        .plan-price-period {
+            font-size: 1.125rem;
+            font-weight: normal;
+        }
+        
+        .feature-list {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+        
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        
+        .check-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+        }
+        
+        .check-icon.green {
+            color: #10b981;
+        }
+        
+        .check-icon.yellow {
+            color: #facc15;
+        }
+        
+        .check-svg {
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        
+        .btn-current {
+            background-color: #4b5563;
+            color: white;
+        }
+        
+        .btn-current:hover {
+            background-color: #6b7280;
+        }
+        
+        .btn-premium {
+            background: linear-gradient(135deg, #ffd700, #ff8c00);
+            color: #000;
+            font-weight: bold;
+        }
+        
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 215, 0, 0.4);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .hero-title {
+                font-size: 1.75rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-<p class="p1">!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="en"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;PodBoost Premium - $7/month&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>body {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-family: system-ui, -apple-system, sans-serif;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: linear-gradient(135deg, #1a1e2e, #16213e);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: white;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>margin: 0;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>padding: 0;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>min-height: 100vh;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.nav {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: rgba(0,0,0,0.3);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>padding: 15px 0;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-bottom: 1px solid #333;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.nav-container {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>max-width: 1200px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>margin: 0 auto;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>padding: 0 20px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>justify-content: space-between;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.logo {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: #1e90ff;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-size: 1.8rem;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-weight: bold;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>text-decoration: none;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.nav-links a {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: #ccc;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>text-decoration: none;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>margin: 0 15px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>transition: color 0.3s;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.nav-links a:hover { color: white; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.nav-links a.active { color: #1e90ff; font-weight: 600; }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.container {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>max-width: 1000px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>margin: 0 auto;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>padding: 40px 20px;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.header {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>text-align: center;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 50px;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.header h1 {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-size: 2.8rem;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: #1e90ff;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 15px;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.header p {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-size: 1.2rem;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: #ccc;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>max-width: 600px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>margin: 0 auto;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.pricing {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>display: grid;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>grid-template-columns: 1fr 1fr;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>gap: 30px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 50px;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.plan {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: rgba(255,255,255,0.05);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border: 1px solid rgba(255,255,255,0.1);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>padding: 40px 30px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>text-align: center;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>position: relative;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.plan.premium {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-color: #ffd700;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-width: 2px;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.plan.premium::before {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>content: "RECOMMENDED";</p>
-<p class="p1"><span class="Apple-converted-space">            </span>position: absolute;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>top: -12px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>left: 50%;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>transform: translateX(-50%);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: linear-gradient(135deg, #ffd700, #ff8c00);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: black;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>padding: 6px 20px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 15px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-size: 0.8rem;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-weight: bold;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.plan h3 {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-size: 1.8rem;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 20px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: #ccc;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.plan.premium h3 { color: #1e90ff; }</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.price {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-size: 2.5rem;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-weight: bold;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 30px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: #1e90ff;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.price span {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-size: 1rem;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: #ccc;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-weight: normal;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.features {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>list-style: none;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>padding: 0;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 30px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>text-align: left;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.features li {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>padding: 8px 0;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>display: flex;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>align-items: center;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.features .check {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: #4ade80;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>margin-right: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-weight: bold;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.features .star {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: #ffd700;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>margin-right: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-weight: bold;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.btn {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>width: 100%;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>padding: 15px 20px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border: none;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 8px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-size: 1rem;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-weight: 600;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>transition: all 0.3s ease;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.btn-free {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: #555;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: white;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.btn-premium {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: linear-gradient(135deg, #ffd700, #ff8c00);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: black;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.btn-premium:hover {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>transform: translateY(-2px);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 10px 25px rgba(255, 215, 0, 0.4);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.cta {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>text-align: center;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: rgba(255,255,255,0.05);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>padding: 50px 40px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 12px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>margin-top: 40px;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.cta h2 {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-size: 2.2rem;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: #1e90ff;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 20px;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.cta p {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-size: 1.1rem;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: #ccc;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>margin-bottom: 30px;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.cta-btn {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>display: inline-block;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>padding: 18px 40px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>background: linear-gradient(135deg, #ffd700, #ff8c00);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>color: black;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>text-decoration: none;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 8px;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-weight: 600;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>font-size: 1.1rem;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>border: none;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>cursor: pointer;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>transition: all 0.3s ease;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>.cta-btn:hover {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>transform: translateY(-2px);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 10px 25px rgba(255, 215, 0, 0.4);</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p2"><span class="Apple-converted-space">        </span></p>
-<p class="p1"><span class="Apple-converted-space">        </span>@media (max-width: 768px) {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>.pricing { grid-template-columns: 1fr; }</p>
-<p class="p1"><span class="Apple-converted-space">            </span>.nav-container { flex-direction: column; gap: 15px; }</p>
-<p class="p1"><span class="Apple-converted-space">            </span>.header h1 { font-size: 2.2rem; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;nav class="nav"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="nav-container"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;a href="index.html" class="logo"&gt;PodBoost&lt;/a&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="nav-links"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;a href="index.html"&gt;Home&lt;/a&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;a href="analytics.html"&gt;Analytics&lt;/a&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;a href="rss-checker.html"&gt;RSS Checker&lt;/a&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;a href="growth-engine.html"&gt;Growth Engine&lt;/a&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;a href="premium-signup.html" class="active"&gt;Premium&lt;/a&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/nav&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="container"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="header"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;h1&gt;Upgrade to PodBoost Premium&lt;/h1&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;p&gt;Unlock advanced AI-powered analytics and growth tools for serious podcasters&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="pricing"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="plan"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3&gt;Free Plan&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="price" style="color: #ccc;"&gt;$0&lt;span&gt;/month&lt;/span&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;ul class="features"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;li&gt;&lt;span class="check"&gt;✓&lt;/span&gt; CSV Analytics Dashboard&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;li&gt;&lt;span class="check"&gt;✓&lt;/span&gt; RSS Feed Checker&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;li&gt;&lt;span class="check"&gt;✓&lt;/span&gt; Basic Growth Tips&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/ul&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button class="btn btn-free"&gt;Current Plan&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="plan premium"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;h3&gt;Premium Plan&lt;/h3&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="price"&gt;$7&lt;span&gt; USD/month&lt;/span&gt;&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;ul class="features"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;li&gt;&lt;span class="check"&gt;✓&lt;/span&gt; Everything in Free&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;li&gt;&lt;span class="star"&gt;⭐&lt;/span&gt; &lt;strong&gt;AI Growth Engine&lt;/strong&gt;&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;li&gt;&lt;span class="star"&gt;⭐&lt;/span&gt; Social Media Tracking&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;li&gt;&lt;span class="star"&gt;⭐&lt;/span&gt; Premium Sponsorship Finder&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;li&gt;&lt;span class="star"&gt;⭐&lt;/span&gt; Campaign Manager&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>&lt;li&gt;&lt;span class="star"&gt;⭐&lt;/span&gt; Priority Support&lt;/li&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;/ul&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;button class="btn btn-premium" onclick="startUpgrade()"&gt;Upgrade to Premium&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="cta"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;h2&gt;Ready to Boost Your Podcast?&lt;/h2&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;p&gt;Join thousands of podcasters using PodBoost Premium to grow their audience&lt;/p&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;button class="cta-btn" onclick="startUpgrade()"&gt;Start Premium Today - $7/month&lt;/button&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function startUpgrade() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>// Direct Stripe integration will go here</p>
-<p class="p1"><span class="Apple-converted-space">            </span>if (confirm('Ready to upgrade to PodBoost Premium for $7/month?\n\nThis will redirect you to secure Stripe checkout.')) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>// Replace with your actual Stripe payment link</p>
-<p class="p1"><span class="Apple-converted-space">                </span>window.open('https://buy.stripe.com/your-premium-link', '_blank');</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <div class="nav-flex">
+                <a href="/" class="logo-section">
+                    <div class="logo">🎙️</div>
+                    <span class="logo-text">PodBoost</span>
+                </a>
+                <div class="nav-links">
+                    <a href="/" class="nav-link">Home</a>
+                    <a href="analytics.html" class="nav-link">Analytics</a>
+                    <a href="rss-checker.html" class="nav-link">RSS Checker</a>
+                    <a href="growth-engine.html" class="nav-link">Growth Engine</a>
+                    <a href="sponsorship-finder.html" class="nav-link">Sponsor Finder</a>
+                    <a href="premium-signup.html" class="nav-link active">Premium</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="main-content">
+        <div class="hero-section">
+            <div class="hero-logo logo-glow">🎙️</div>
+            <h1 class="hero-title podboost-glow">Upgrade to PodBoost Premium</h1>
+            <p class="hero-subtitle">Unlock advanced analytics and growth tools for serious podcasters</p>
+        </div>
+
+        <!-- Feature Highlight -->
+        <div class="card feature-highlight">
+            <div class="feature-icon">📊</div>
+            <h2 class="feature-title">Social Impact Tracking</h2>
+            <p class="feature-description">Connect your social media accounts to track how your posts drive podcast downloads. See which platforms convert best and optimize your social strategy.</p>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <h3>Platform Analytics</h3>
+                    <p>Track Twitter, Facebook, Instagram, LinkedIn performance</p>
+                </div>
+                <div class="feature-item">
+                    <h3>Conversion Tracking</h3>
+                    <p>See which posts drive actual podcast downloads</p>
+                </div>
+                <div class="feature-item">
+                    <h3>ROI Analysis</h3>
+                    <p>Measure social media effort vs. listener growth</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pricing Plans -->
+        <div class="pricing-grid">
+            <!-- Basic Plan -->
+            <div class="card pricing-card">
+                <h3 class="plan-title free">Free Plan</h3>
+                <div class="plan-price free">$0<span class="plan-price-period">/month</span></div>
+                <ul class="feature-list">
+                    <li>
+                        <svg class="check-icon green" viewBox="0 0 24 24">
+                            <path class="check-svg" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        CSV Analytics Dashboard
+                    </li>
+                    <li>
+                        <svg class="check-icon green" viewBox="0 0 24 24">
+                            <path class="check-svg" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        RSS Feed Checker
+                    </li>
+                    <li>
+                        <svg class="check-icon green" viewBox="0 0 24 24">
+                            <path class="check-svg" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Basic Growth Tips
+                    </li>
+                </ul>
+                <button class="btn btn-current">Current Plan</button>
+            </div>
+
+            <!-- Premium Plan -->
+            <div class="card pricing-card recommended">
+                <div class="recommended-badge">RECOMMENDED</div>
+                <h3 class="plan-title premium">Premium Plan</h3>
+                <div class="plan-price premium">$7<span class="plan-price-period"> USD/month</span></div>
+                <ul class="feature-list">
+                    <li>
+                        <svg class="check-icon green" viewBox="0 0 24 24">
+                            <path class="check-svg" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Everything in Free
+                    </li>
+                    <li>
+                        <svg class="check-icon yellow" viewBox="0 0 24 24">
+                            <path class="check-svg" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <strong>AI Growth Engine</strong>
+                    </li>
+                    <li>
+                        <svg class="check-icon yellow" viewBox="0 0 24 24">
+                            <path class="check-svg" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <strong>Social Media Tracking</strong>
+                    </li>
+                    <li>
+                        <svg class="check-icon yellow" viewBox="0 0 24 24">
+                            <path class="check-svg" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Premium Sponsorship Finder
+                    </li>
+                    <li>
+                        <svg class="check-icon yellow" viewBox="0 0 24 24">
+                            <path class="check-svg" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Campaign Manager
+                    </li>
+                    <li>
+                        <svg class="check-icon yellow" viewBox="0 0 24 24">
+                            <path class="check-svg" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Priority Support
+                    </li>
+                </ul>
+                <button onclick="upgradeToPremium()" class="btn btn-premium">
+                    Upgrade to Premium - $7/month
+                </button>
+            </div>
+        </div>
+
+        <!-- Ready to Boost Section -->
+        <div class="card" style="padding: 2rem; text-align: center; margin-bottom: 2rem;">
+            <h2 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 1rem; color: #1e90ff;">Ready to Boost Your Podcast?</h2>
+            <p style="color: #d1d5db; margin-bottom: 1.5rem;">Join thousands of podcasters using PodBoost Premium to grow their audience</p>
+            <button onclick="upgradeToPremium()" class="btn btn-premium" style="max-width: 300px; margin: 0 auto;">
+                Start Premium Today - $7/month
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Get URL parameters to customize the page
+        const urlParams = new URLSearchParams(window.location.search);
+        const feature = urlParams.get('feature');
+        
+        if (feature === 'social-impact') {
+            console.log('Showing Social Impact upgrade page');
+        }
+
+        // Stripe Checkout Integration
+        function upgradeToPremium() {
+            try {
+                // For now, redirect to a simple signup form or external payment link
+                // Replace this URL with your actual Stripe payment link when ready
+                alert('Premium upgrade coming soon! Contact support@podboost.com.au for early access.');
+                
+                // Future Stripe integration would go here:
+                // window.open('https://buy.stripe.com/your-payment-link-here', '_blank');
+                
+                return false;
+            } catch (error) {
+                console.error('Checkout error:', error);
+                alert('Unable to start checkout. Please try again or contact support.');
+            }
+        }
+
+        // Mobile menu toggle (if needed in future)
+        function toggleMobileMenu() {
+            const navLinks = document.querySelector('.nav-links');
+            navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+        }
+    </script>
 </body>
 </html>
