@@ -1,0 +1,16 @@
+# SECURITY NOTICE FOR GITHUB
+
+⚠️ IMPORTANT: Environment Variables Required ⚠️
+
+This application requires these environment variables to function:
+
+Required for Production:
+- OPENAI_API_KEY=your_openai_api_key_here
+- STRIPE_SECRET_KEY=your_stripe_secret_key_here  
+- VITE_STRIPE_PUBLIC_KEY=your_stripe_public_key_here
+- DATABASE_URL=your_postgresql_database_url_here
+
+Never commit API keys directly to GitHub!
+Set these as environment variables in your hosting platform.
+
+
