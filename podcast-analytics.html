@@ -213,8 +213,9 @@
                 const titleCol = columns.find(key => 
                     key.toLowerCase().includes('title') || 
                     key.toLowerCase().includes('episode') || 
-                    key.toLowerCase().includes('name') ||
-                    key === 'Title' || key === 'Episode' || key === 'Name'
+                    key.toLowerCase().includes('name') || 
+                    key.toLowerCase().includes('clip') ||
+                    key === 'Title' || key === 'Episode' || key === 'Name' || key === 'Clip title'
                 );
                 
                 // Find downloads column (flexible naming)
@@ -226,23 +227,31 @@
                     key === 'Downloads' || key === 'Plays' || key === 'Views'
                 );
                 
+                // Helper function to parse numbers with commas
+                function parseNumber(value) {
+                    if (!value) return 0;
+                    // Remove commas and quotes, then parse
+                    const cleaned = String(value).replace(/[",]/g, '');
+                    return parseInt(cleaned) || 0;
+                }
+                
                 // Clean and process the data with flexible column mapping
                 const processedData = data.filter(row => {
-                    const title = titleCol ? row[titleCol] : (row.episode_title || row.title || row.Title || row.Episode);
+                    const title = titleCol ? row[titleCol] : (row.episode_title || row.title || row.Title || row.Episode || row['Clip title']);
                     const downloads = downloadsCol ? row[downloadsCol] : (row.downloads || row.Downloads || row.plays || row.Plays);
                     
-                    return title && downloads && !isNaN(parseInt(downloads));
+                    return title && downloads && parseNumber(downloads) > 0;
                 }).map(row => {
-                    const title = titleCol ? row[titleCol] : (row.episode_title || row.title || row.Title || row.Episode);
+                    const title = titleCol ? row[titleCol] : (row.episode_title || row.title || row.Title || row.Episode || row['Clip title']);
                     const downloads = downloadsCol ? row[downloadsCol] : (row.downloads || row.Downloads || row.plays || row.Plays);
-                    const publishDate = row.publish_date || row.date || row.Date || row['Publish Date'] || new Date().toISOString();
+                    const publishDate = row.publish_date || row.date || row.Date || row['Publish Date'] || row['Published date'] || new Date().toISOString();
                     
                     return {
                         episode_title: title,
-                        downloads: parseInt(downloads),
-                        unique_listeners: parseInt(row.unique_listeners || row['Unique Listeners'] || 0),
+                        downloads: parseNumber(downloads),
+                        unique_listeners: parseNumber(row.unique_listeners || row['Unique Listeners'] || 0),
                         completion_rate: parseFloat(row.completion_rate || row['Completion Rate'] || 0),
-                        episode_duration: parseInt(row.episode_duration || row.duration || row.Duration || 0),
+                        episode_duration: parseNumber(row.episode_duration || row.duration || row.Duration || 0),
                         publish_date: new Date(publishDate),
                         day_of_week: row.day_of_week || row['Day of Week'] || '',
                         publish_time: row.publish_time || row['Publish Time'] || ''
