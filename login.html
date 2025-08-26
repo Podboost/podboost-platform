@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PodBoost Premium Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root {
+            --podboost-blue: #1e90ff;
+            --podboost-dark: #1a1e2e;
+            --podboost-highlight: #36b4ff;
+        }
+        body {
+            background-color: var(--podboost-dark);
+            color: #fff;
+        }
+        .podboost-glow {
+            text-shadow: 0 0 10px rgba(30, 144, 255, 0.7);
+        }
+        .logo-glow {
+            filter: drop-shadow(0 0 10px rgba(30, 144, 255, 0.7));
+        }
+        .card {
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(30, 144, 255, 0.2);
+            border-radius: 8px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #1e90ff, #36b4ff);
+            color: white;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(30, 144, 255, 0.4);
+        }
+        .input-field {
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(30, 144, 255, 0.2);
+            color: white;
+        }
+        .input-field:focus {
+            border-color: #1e90ff;
+            box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.1);
+            outline: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+    <!-- Navigation Bar -->
+    <div id="navbar-container"></div>
+    
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8">
+            <!-- Header -->
+            <div class="text-center">
+                <img src="images/podboost-logo-new.png" alt="PodBoost Logo" class="h-16 mx-auto mb-6 logo-glow">
+                <h1 class="text-3xl font-bold text-[#1e90ff] podboost-glow mb-2">Welcome Back</h1>
+                <p class="text-gray-300">Sign in to your PodBoost Premium account</p>
+            </div>
+
+            <!-- Login Form -->
+            <div class="card p-8">
+                <form id="loginForm" class="space-y-6">
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+                        <input 
+                            type="email" 
+                            id="email" 
+                            name="email" 
+                            required 
+                            class="input-field w-full px-4 py-3 rounded-lg"
+                            placeholder="your@email.com"
+                        >
+                    </div>
+
+                    <div class="text-center text-sm text-gray-400 bg-blue-900/20 p-3 rounded-lg border border-blue-500/20">
+                        <p class="mb-2">🔐 <strong>Passwordless Login</strong></p>
+                        <p>Simply enter your email - no password required for secure access</p>
+                    </div>
+
+                    <button 
+                        type="submit" 
+                        class="btn-primary w-full py-3 px-4 rounded-lg font-medium"
+                    >
+                        Sign In to Premium
+                    </button>
+                </form>
+
+                <!-- Demo Access -->
+                <div class="mt-6 pt-6 border-t border-gray-700">
+                    <div class="text-center">
+                        <p class="text-sm text-gray-400 mb-3">For demo purposes:</p>
+                        <button 
+                            onclick="grantDemoAccess()" 
+                            class="w-full py-2 px-4 bg-gray-600 text-white rounded-lg hover:bg-gray-500 transition-colors text-sm"
+                        >
+                            Grant Demo Access (This Session)
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sign Up Link -->
+            <div class="text-center">
+                <p class="text-gray-400">
+                    Don't have an account? 
+                    <a href="/premium-signup.html" class="text-[#1e90ff] hover:text-[#36b4ff] transition-colors font-medium">
+                        Upgrade to Premium
+                    </a>
+                </p>
+            </div>
+
+            <!-- Features Reminder -->
+            <div class="card p-6 mt-8">
+                <h3 class="text-lg font-semibold text-[#1e90ff] mb-4 text-center">Premium Features</h3>
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div class="flex items-center">
+                        <svg class="h-4 w-4 text-yellow-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Social Impact Tracking
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="h-4 w-4 text-yellow-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Advanced Analytics
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="h-4 w-4 text-yellow-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Sponsorship Finder
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="h-4 w-4 text-yellow-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        Campaign Manager
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load the navbar
+        fetch('/navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar-container').innerHTML = data;
+            })
+            .catch(error => console.error('Error loading navbar:', error));
+
+        // Handle login form submission
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const submitButton = e.target.querySelector('button[type="submit"]');
+            
+            if (!email) {
+                alert('Please enter your email address.');
+                return;
+            }
+            
+            // Disable form and show loading
+            submitButton.disabled = true;
+            submitButton.textContent = 'Signing In...';
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ email })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    alert('Successfully signed in! Redirecting to dashboard...');
+                    window.location.href = data.redirectTo || '/dashboard.html';
+                } else {
+                    alert(data.error || 'Login failed. Please try again.');
+                }
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                alert('Connection error. Please check your internet and try again.');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = 'Sign In to Premium';
+            }
+        });
+
+        function grantDemoAccess() {
+            // Grant session-only access for demo purposes
+            localStorage.setItem('podboost_premium', 'true');
+            localStorage.setItem('podboost_user_email', 'demo@podboost.com.au');
+            
+            alert('Demo access granted for this session! You can now access all premium features.');
+            window.location.href = '/';
+        }
+
+        // Check if user is already logged in
+        fetch('/api/auth/user', { credentials: 'include' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.user) {
+                    if (confirm(`You're already logged in as ${data.user.email}. Continue to dashboard?`)) {
+                        window.location.href = '/dashboard.html';
+                    }
+                }
+            })
+            .catch(() => {
+                // User not logged in, continue with login form
+            });
+    </script>
+</body>
+</html>
