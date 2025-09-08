@@ -1,5 +1,6 @@
 # API redirects to serverless functions
 /api/rss-check /.netlify/functions/rss-check 200
+/api/rss/check-rss /.netlify/functions/rss-check 200
 /api/sponsor-finder /.netlify/functions/sponsor-finder 200
 /api/campaign-create /.netlify/functions/campaign-create 200
 /api/growth-engine /.netlify/functions/server 200
