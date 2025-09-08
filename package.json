@@ -1,0 +1,29 @@
+{
+  "name": "podboost-platform",
+  "version": "1.0.0",
+  "main": "simple-server.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node simple-server.js",
+    "dev": "node simple-server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["podcast", "analytics", "saas"],
+  "author": "PodBoost",
+  "license": "ISC",
+  "description": "PodBoost - Complete podcast growth and monetization platform",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "feedparser": "^2.2.10",
+    "multer": "^1.4.4-lts.1",
+    "openai": "^4.67.1",
+    "papaparse": "^5.5.3",
+    "pg": "^8.16.3",
+    "serverless-http": "^3.2.0",
+    "stripe": "^16.12.0"
+  }
+}

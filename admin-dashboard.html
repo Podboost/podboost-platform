@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - PodBoost</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: #1a1e2e; 
+            color: white; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(30, 144, 255, 0.2);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #1e90ff, #36b4ff);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .logo img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+        
+        .admin-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e90ff;
+        }
+        
+        .refresh-btn {
+            background: linear-gradient(135deg, #1e90ff, #36b4ff);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 144, 255, 0.3);
+        }
+        
+        .main-content {
+            padding: 40px 0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(30, 144, 255, 0.2);
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(30, 144, 255, 0.1);
+        }
+        
+        .stat-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.8;
+        }
+        
+        .stat-number {
+            font-size: 42px;
+            font-weight: bold;
+            color: #1e90ff;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            font-size: 16px;
+            color: #d1d5db;
+            margin-bottom: 4px;
+        }
+        
+        .stat-change {
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .stat-change.positive {
+            color: #10b981;
+        }
+        
+        .stat-change.neutral {
+            color: #9ca3af;
+        }
+        
+        .data-section {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(30, 144, 255, 0.2);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e90ff;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .data-table th {
+            background: rgba(30, 144, 255, 0.1);
+            color: #1e90ff;
+            font-weight: 600;
+        }
+        
+        .data-table tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .status-inactive {
+            background: rgba(107, 114, 128, 0.2);
+            color: #9ca3af;
+        }
+        
+        .status-paid {
+            background: rgba(34, 197, 94, 0.2);
+            color: #22c55e;
+        }
+        
+        .status-unpaid {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .empty-state {
+            text-align: center;
+            color: #9ca3af;
+            font-style: italic;
+            padding: 40px;
+        }
+        
+        .last-updated {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 14px;
+            margin-top: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 0 16px; }
+            .header-content { flex-direction: column; gap: 20px; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .data-table { font-size: 14px; }
+            .data-table th, .data-table td { padding: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo">
+                        <img src="images/podboost-logo-new.png" alt="PodBoost Logo" style="display: none;" onload="this.style.display='block'; this.parentNode.style.background='none';">
+                        🎙️
+                    </div>
+                    <div class="admin-title">PodBoost Admin Dashboard</div>
+                </div>
+                
+                <button class="refresh-btn" onclick="refreshData()">
+                    <span id="refresh-icon">🔄</span> Refresh Data
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="main-content">
+            <!-- Key Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">👥</div>
+                    <div class="stat-number" id="total-users">-</div>
+                    <div class="stat-label">Total Users</div>
+                    <div class="stat-change neutral" id="users-change">No change</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">⭐</div>
+                    <div class="stat-number" id="premium-subs">-</div>
+                    <div class="stat-label">Premium Subscribers</div>
+                    <div class="stat-change neutral" id="subs-change">No change</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">💰</div>
+                    <div class="stat-number" id="monthly-revenue">$0</div>
+                    <div class="stat-label">Monthly Revenue</div>
+                    <div class="stat-change neutral" id="revenue-change">No change</div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">📋</div>
+                    <div class="stat-number" id="total-campaigns">-</div>
+                    <div class="stat-label">Total Campaigns</div>
+                    <div class="stat-change neutral" id="campaigns-change">No change</div>
+                </div>
+            </div>
+
+            <!-- Recent Users -->
+            <div class="data-section">
+                <h2 class="section-title">
+                    👥 Recent User Signups
+                </h2>
+                <table class="data-table" id="users-table">
+                    <thead>
+                        <tr>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Stripe Customer</th>
+                            <th>Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-tbody">
+                        <tr><td colspan="4" class="empty-state">Loading user data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Active Subscriptions -->
+            <div class="data-section">
+                <h2 class="section-title">
+                    ⭐ Premium Subscriptions
+                </h2>
+                <table class="data-table" id="subscriptions-table">
+                    <thead>
+                        <tr>
+                            <th>User Email</th>
+                            <th>Status</th>
+                            <th>Period End</th>
+                            <th>Stripe ID</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subscriptions-tbody">
+                        <tr><td colspan="4" class="empty-state">Loading subscription data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Recent Campaigns -->
+            <div class="data-section">
+                <h2 class="section-title">
+                    📋 Recent Campaigns
+                </h2>
+                <table class="data-table" id="campaigns-table">
+                    <thead>
+                        <tr>
+                            <th>Podcast Name</th>
+                            <th>Host</th>
+                            <th>Payment Status</th>
+                            <th>Amount</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
+                    <tbody id="campaigns-tbody">
+                        <tr><td colspan="5" class="empty-state">Loading campaign data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="last-updated">
+                Last updated: <span id="last-updated">Never</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let lastRefresh = null;
+
+        async function loadAdminData() {
+            try {
+                const response = await fetch('/api/admin/stats', {
+                    credentials: 'include'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load admin data');
+                }
+                
+                const data = await response.json();
+                updateDashboard(data);
+                
+            } catch (error) {
+                console.error('Error loading admin data:', error);
+                showErrorState();
+            }
+        }
+
+        function updateDashboard(data) {
+            // Update stats cards
+            document.getElementById('total-users').textContent = data.stats.totalUsers || 0;
+            document.getElementById('premium-subs').textContent = data.stats.premiumSubscribers || 0;
+            document.getElementById('monthly-revenue').textContent = `$${data.stats.monthlyRevenue || 0}`;
+            document.getElementById('total-campaigns').textContent = data.stats.totalCampaigns || 0;
+
+            // Update users table
+            updateUsersTable(data.users || []);
+            
+            // Update subscriptions table
+            updateSubscriptionsTable(data.subscriptions || []);
+            
+            // Update campaigns table
+            updateCampaignsTable(data.campaigns || []);
+
+            // Update timestamp
+            lastRefresh = new Date();
+            document.getElementById('last-updated').textContent = lastRefresh.toLocaleString();
+        }
+
+        function updateUsersTable(users) {
+            const tbody = document.getElementById('users-tbody');
+            
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No users registered yet</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = users.map(user => `
+                <tr>
+                    <td>${user.email}</td>
+                    <td><span class="status-badge ${user.has_premium ? 'status-active' : 'status-inactive'}">${user.has_premium ? 'Premium' : 'Free'}</span></td>
+                    <td>${user.stripe_customer_id || 'None'}</td>
+                    <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateSubscriptionsTable(subscriptions) {
+            const tbody = document.getElementById('subscriptions-tbody');
+            
+            if (subscriptions.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="empty-state">No premium subscriptions yet</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = subscriptions.map(sub => `
+                <tr>
+                    <td>${sub.user_email}</td>
+                    <td><span class="status-badge status-active">${sub.status}</span></td>
+                    <td>${new Date(sub.current_period_end).toLocaleDateString()}</td>
+                    <td>${sub.stripe_subscription_id}</td>
+                </tr>
+            `).join('');
+        }
+
+        function updateCampaignsTable(campaigns) {
+            const tbody = document.getElementById('campaigns-tbody');
+            
+            if (campaigns.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No campaigns created yet</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = campaigns.map(campaign => `
+                <tr>
+                    <td>${campaign.podcast_name}</td>
+                    <td>${campaign.host_name || 'N/A'}</td>
+                    <td><span class="status-badge ${campaign.paid ? 'status-paid' : 'status-unpaid'}">${campaign.paid ? 'Paid' : 'Unpaid'}</span></td>
+                    <td>$${campaign.payment_amount ? (campaign.payment_amount / 100).toFixed(2) : '0.00'}</td>
+                    <td>${new Date(campaign.created_at).toLocaleDateString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        function showErrorState() {
+            document.getElementById('total-users').textContent = 'Error';
+            document.getElementById('premium-subs').textContent = 'Error';
+            document.getElementById('monthly-revenue').textContent = 'Error';
+            document.getElementById('total-campaigns').textContent = 'Error';
+        }
+
+        async function refreshData() {
+            const refreshIcon = document.getElementById('refresh-icon');
+            refreshIcon.innerHTML = '<span class="loading"></span>';
+            
+            await loadAdminData();
+            
+            setTimeout(() => {
+                refreshIcon.innerHTML = '🔄';
+            }, 1000);
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadAdminData, 30000);
+
+        // Load initial data
+        loadAdminData();
+    </script>
+</body>
+</html>
