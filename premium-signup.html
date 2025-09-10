@@ -32,7 +32,8 @@
     <script>
         async function startCheckout() {
             try {
-                const response = await fetch('/api/create-checkout-session', {
+                // Use Netlify Function endpoint
+                const response = await fetch('/.netlify/functions/create-checkout-session', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -47,7 +48,7 @@
                 if (session.url) {
                     window.location.href = session.url;
                 } else {
-                    alert('Payment setup error. Please try again.');
+                    alert('Payment setup error: ' + (session.error || 'Please try again.'));
                 }
                 
             } catch (error) {
