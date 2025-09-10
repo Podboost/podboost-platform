@@ -158,7 +158,7 @@
     <script src="https://js.stripe.com/v3/"></script>
     <script>
         // Initialize Stripe with your publishable key
-        const stripe = Stripe('pk_live_51L3Vg1AG75e8uzLKUpKJtNuxwVLscGlrmZmbrSoV3xPJeZX5OyBsi4twFlxgMLTjfHscUG8SDDPx322RPw0k4oKH00yKhzhp61');
+        // Stripe will be handled server-side via checkout session
 
         // Load the navbar
         fetch('/navbar.html')
@@ -179,14 +179,33 @@
 
         // Removed old upgrade function - now redirects to signup form
 
-        // Direct upgrade without authentication requirement
+        // Direct Stripe checkout without login requirement
         async function checkAuthAndUpgrade() {
-            // Grant demo access and proceed directly to premium features
-            localStorage.setItem('podboost_premium', 'true');
-            localStorage.setItem('podboost_user_email', 'premium@podboost.com.au');
-            
-            alert('✅ Premium access activated! You now have access to all premium features.');
-            window.location.href = '/';
+            try {
+                // Create Stripe checkout session directly
+                const response = await fetch('/api/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        mode: 'subscription'
+                    })
+                });
+
+                const session = await response.json();
+                
+                if (session.url) {
+                    // Redirect to Stripe Checkout
+                    window.location.href = session.url;
+                } else {
+                    alert('Payment setup error. Please try again.');
+                }
+                
+            } catch (error) {
+                console.error('Checkout error:', error);
+                alert('Unable to start checkout. Please try again.');
+            }
         }
 
         // Stripe Checkout Integration for authenticated users

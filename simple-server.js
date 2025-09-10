@@ -73,6 +73,9 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
 
+// CSV parsing for analytics
+const Papa = require('papaparse');
+
 // Authentication routes
 app.post('/api/auth/login', auth.loginWithEmail);
 app.post('/api/auth/logout', auth.logout);
@@ -5025,7 +5028,11 @@ app.post('/api/analyze-csv-growth', upload.single('file'), async (req, res) => {
     
     const parseResult = Papa.parse(csvContent, {
       header: true,
-      skipEmptyLines: true
+      skipEmptyLines: true,
+      quoteChar: '"',
+      escapeChar: '"',
+      delimiter: ',',
+      newline: '\n'
     });
 
     if (parseResult.errors.length > 0) {
@@ -5372,6 +5379,37 @@ function analyzeCSVForGrowth(data) {
 
   return analysis;
 }
+
+// Stripe checkout session creation for real paid subscriptions
+app.post('/api/create-checkout-session', async (req, res) => {
+  try {
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return res.status(500).json({ error: 'Stripe not configured' });
+    }
+    
+    const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+    
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price: process.env.STRIPE_PRICE_ID, // Your $7/month price ID from environment
+          quantity: 1,
+        },
+      ],
+      mode: 'subscription',
+      success_url: `${req.headers.origin || 'https://podboost.com.au'}/success.html?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.origin || 'https://podboost.com.au'}/premium-signup.html`,
+      allow_promotion_codes: true,
+      billing_address_collection: 'auto',
+    });
+
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error('Stripe checkout error:', error);
+    res.status(500).json({ error: 'Failed to create checkout session' });
+  }
+});
 
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`PodBoost running on http://localhost:${PORT}`);
