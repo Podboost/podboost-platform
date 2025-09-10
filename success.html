@@ -5,124 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Premium Subscription Successful - PodBoost</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        :root {
-            --podboost-blue: #1e90ff;
-            --podboost-dark: #1a1e2e;
-            --podboost-highlight: #36b4ff;
-        }
-        body {
-            background-color: var(--podboost-dark);
-            color: #fff;
-        }
-        .podboost-glow {
-            text-shadow: 0 0 10px rgba(30, 144, 255, 0.7);
-        }
-        .logo-glow {
-            filter: drop-shadow(0 0 10px rgba(30, 144, 255, 0.7));
-        }
-        .card {
-            background-color: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(30, 144, 255, 0.2);
-            border-radius: 8px;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #1e90ff, #36b4ff);
-            color: white;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(30, 144, 255, 0.4);
-        }
-    </style>
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen">
-    <!-- Navigation Bar -->
-    <div id="navbar-container"></div>
-    
-    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-md w-full text-center">
-            <!-- Success Icon -->
-            <div class="mb-8">
-                <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                    </svg>
-                </div>
-                <img src="images/podboost-logo-new.png" alt="PodBoost Logo" class="h-16 mx-auto logo-glow">
+<body class="bg-gray-900 text-white min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full text-center p-6">
+        <div class="bg-gray-800 rounded-lg p-8 border border-green-500">
+            <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
             </div>
-
-            <!-- Success Message -->
-            <div class="card p-8 mb-8">
-                <h1 class="text-3xl font-bold text-green-400 mb-4">🎉 Welcome to Premium!</h1>
-                <p class="text-xl text-gray-300 mb-6">Your subscription has been activated successfully.</p>
-                
-                <div class="bg-green-900/20 border border-green-500/30 rounded-lg p-4 mb-6">
-                    <h3 class="text-lg font-semibold text-green-400 mb-2">Premium Features Unlocked:</h3>
-                    <ul class="text-sm text-gray-300 space-y-1">
-                        <li>✅ Social Impact Tracking</li>
-                        <li>✅ Advanced AI Growth Tips</li>
-                        <li>✅ Premium Sponsorship Finder</li>
-                        <li>✅ Campaign Manager Access</li>
-                        <li>✅ Priority Support</li>
-                    </ul>
-                </div>
-                
-                <button onclick="activatePremiumAccess()" class="btn-primary w-full py-3 px-4 rounded-lg font-medium mb-4">
-                    Access Premium Dashboard
-                </button>
-                
-                <p class="text-sm text-gray-400">
-                    Receipt will be sent to your email. You can manage your subscription anytime in your account settings.
-                </p>
+            
+            <h1 class="text-3xl font-bold text-green-400 mb-4">🎉 Welcome to Premium!</h1>
+            <p class="text-xl text-gray-300 mb-6">Your subscription has been activated successfully.</p>
+            
+            <div class="bg-green-900/20 border border-green-500/30 rounded-lg p-4 mb-6">
+                <h3 class="text-lg font-semibold text-green-400 mb-2">Premium Features Unlocked:</h3>
+                <ul class="text-sm text-gray-300 space-y-1">
+                    <li>✅ Social Impact Tracking</li>
+                    <li>✅ Advanced AI Growth Tips</li>
+                    <li>✅ Premium Sponsorship Finder</li>
+                    <li>✅ Campaign Manager Access</li>
+                    <li>✅ Priority Support</li>
+                </ul>
             </div>
-
-            <!-- Quick Actions -->
-            <div class="card p-6">
-                <h3 class="text-lg font-semibold text-[#1e90ff] mb-4">Get Started:</h3>
-                <div class="space-y-3">
-                    <a href="/growth-engine.html" class="block w-full py-2 px-4 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm">
-                        Try Growth Engine Analytics
-                    </a>
-                    <a href="/sponsorship-finder.html" class="block w-full py-2 px-4 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm">
-                        Find Sponsors
-                    </a>
-                    <a href="/social-impact-tracker.html" class="block w-full py-2 px-4 bg-gray-700 text-white rounded-lg hover:bg-gray-600 transition-colors text-sm">
-                        Track Social Impact
-                    </a>
-                </div>
-            </div>
+            
+            <button onclick="activatePremiumAccess()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg transition-colors mb-4">
+                Access Premium Dashboard
+            </button>
+            
+            <a href="/" class="block w-full bg-gray-700 hover:bg-gray-600 text-white py-2 px-4 rounded-lg transition-colors">
+                Return to Dashboard
+            </a>
         </div>
     </div>
 
     <script>
-        // Load the navbar
-        fetch('/navbar.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('navbar-container').innerHTML = data;
-            })
-            .catch(error => console.error('Error loading navbar:', error));
-
         function activatePremiumAccess() {
-            // Set premium status in localStorage
             localStorage.setItem('podboost_premium', 'true');
             localStorage.setItem('podboost_subscription_active', 'true');
-            
-            // Redirect to main dashboard
             window.location.href = '/';
         }
 
         // Auto-activate premium access on page load
         window.addEventListener('load', function() {
-            // Get session ID from URL if available
             const urlParams = new URLSearchParams(window.location.search);
             const sessionId = urlParams.get('session_id');
             
             if (sessionId) {
-                // Automatically set premium status
                 localStorage.setItem('podboost_premium', 'true');
                 localStorage.setItem('podboost_subscription_active', 'true');
                 localStorage.setItem('podboost_stripe_session', sessionId);
